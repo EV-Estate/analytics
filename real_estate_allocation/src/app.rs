@@ -35,10 +35,30 @@ pub fn App() -> Element {
 	use_context_provider(DeepLink::capture);
 	rsx! {
 		document::Stylesheet { href: asset!("/assets/tailwind.css") }
-		// Self-hosted brand webfonts, bundled and `@font-face`d by the uikit — no
-		// CDN, renders identically offline / behind a CSP.
-		ev_lib::uikit::Fonts {}
+		Fonts {}
 		Router::<Route> {}
+	}
+}
+
+/// Self-hosted brand webfonts — the families `--font-sans` / `--font-serif`
+/// name in `assets/tokens.css`. Ours since ev_lib 0.10 stopped shipping them:
+/// a kit cannot bundle a consumer's typography, and these are EV's.
+///
+/// Not in `mfe.css`: the embed mounts into the landing host's light DOM, which
+/// already carries them.
+#[component]
+fn Fonts() -> Element {
+	rsx! {
+		document::Style { {format!(
+			"@font-face{{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('{INTER}') format('woff2')}}\
+			 @font-face{{font-family:'Inter';font-style:italic;font-weight:100 900;font-display:swap;src:url('{INTER_ITALIC}') format('woff2')}}\
+			 @font-face{{font-family:'Playfair Display';font-style:normal;font-weight:300 900;font-display:swap;src:url('{PLAYFAIR}') format('woff2')}}\
+			 @font-face{{font-family:'Playfair Display';font-style:italic;font-weight:300 900;font-display:swap;src:url('{PLAYFAIR_ITALIC}') format('woff2')}}",
+			INTER = asset!("/assets/fonts/Inter.woff2"),
+			INTER_ITALIC = asset!("/assets/fonts/Inter-Italic.woff2"),
+			PLAYFAIR = asset!("/assets/fonts/PlayfairDisplay.woff2"),
+			PLAYFAIR_ITALIC = asset!("/assets/fonts/PlayfairDisplay-Italic.woff2"),
+		)} }
 	}
 }
 

@@ -52,6 +52,9 @@ strum = { workspace = true, features = ["strum_macros", "derive"] }
 thiserror.workspace = true
 uuid.workspace = true
 
+[build-dependencies]
+real_estate_allocation_assets.workspace = true
+
 [dev-dependencies]
 dioxus-ssr.workspace = true
 insta.workspace = true

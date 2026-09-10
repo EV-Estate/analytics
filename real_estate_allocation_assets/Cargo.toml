@@ -1,0 +1,11 @@
+[package]
+name = "real_estate_allocation_assets"
+version = "0.1.0"
+edition = "2024"
+description = "Build-time staging of the ev_lib kit's Tailwind inputs into the site crate."
+
+[build-dependencies]
+ev_lib_classes.workspace = true
+
+[lints]
+workspace = true

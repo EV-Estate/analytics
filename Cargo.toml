@@ -32,11 +32,13 @@ v_utils = { version = "^2.15.56", features = ["io", "macros", "cli"] }
 async-trait = "^0.1"
 dioxus = { version = "^0.7" }
 dioxus-ssr = "0.7"
-ev_lib = "^0.6.0"
+ev_lib = "^0.11.0"
+ev_lib_classes = "^0.4.0"
 getrandom = { version = "^0.4", features = ["wasm_js"] }
 gloo-net = "^0.7"
 insta = "^1"
 jiff = { version = "^0.2", features = ["serde"] }
+real_estate_allocation_assets = { path = "real_estate_allocation_assets" }
 real_estate_allocation_core = { path = "real_estate_allocation_core" }
 real_estate_allocation_embeds = { path = "real_estate_allocation_embeds" }
 secrecy = "^0.10"
