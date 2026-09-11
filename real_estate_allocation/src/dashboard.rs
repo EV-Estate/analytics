@@ -121,7 +121,7 @@ pub fn Dashboard() -> Element {
 		// The dock fills exactly one viewport so panels never get clipped by an
 		// off-screen overflow. Chromeless (see `Home`) — whatever the hosting shell
 		// leaves us of it (--ev-shell-offset: 0 standalone, 4rem under the conductor).
-		div { class: "flex h-[calc(100dvh-var(--ev-shell-offset,0px))] flex-col bg-background text-foreground",
+		div { class: "flex h-[calc(100dvh-var(--ev-shell-offset,0px))] flex-col bg-background text-ink",
 			TopBar {}
 			div { class: "relative min-h-0 flex-1",
 				PackedArea { panels, on_band: Some(on_band), config: Some(config) }
@@ -129,8 +129,8 @@ pub fn Dashboard() -> Element {
 			if let Some(msg) = toast() {
 				div {
 					class: "pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded
-						border border-main-mist/20 bg-main-black/90 px-4 py-2 font-mono text-xs
-						tracking-wider text-main-accent-t1 shadow-lg",
+						border border-ink/20 bg-background/90 px-4 py-2 font-mono text-xs
+						tracking-wider text-accent-debug shadow-lg",
 					"{msg}"
 				}
 			}

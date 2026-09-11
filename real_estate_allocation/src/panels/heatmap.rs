@@ -29,7 +29,7 @@ pub fn PortfolioHeatmap() -> Element {
 				match &*buildings.read() {
 					None => rsx! { Skeleton { class: "h-full w-full" } },
 					Some(list) if list.is_empty() => rsx! {
-						div { class: "flex h-full items-center justify-center text-sm text-muted-foreground",
+						div { class: "flex h-full items-center justify-center text-sm text-ink-soft",
 							"No holdings to display."
 						}
 					},
@@ -143,7 +143,7 @@ fn Treemap(buildings: Vec<Building>, states: Vec<PropertyStateKind>) -> Element 
 	let tiles = layout(&buildings, &states);
 
 	rsx! {
-		div { class: "relative h-full w-full overflow-hidden rounded-lg bg-main-surface",
+		div { class: "relative h-full w-full overflow-hidden rounded-lg bg-secondary",
 			for t in tiles {
 				if selected() == Some(t.id) {
 					BuildingCell { tile: t }
@@ -197,15 +197,15 @@ fn BuildingCell(tile: BTile) -> Element {
 	rsx! {
 		div {
 			key: "{id}",
-			class: "absolute z-20 overflow-hidden rounded-md ring-2 ring-main-accent-t3",
+			class: "absolute z-20 overflow-hidden rounded-md ring-2 ring-accent-warn",
 			style: "left:calc({r.x:.4}% + 2px);top:calc({r.y:.4}% + 2px);width:calc({r.w:.4}% - 4px);height:calc({r.h:.4}% - 4px);background-color:{heat_color(change)}",
-			span { class: "pointer-events-none absolute left-1 top-1 z-30 rounded bg-main-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-main-accent-t3", "{name}" }
+			span { class: "pointer-events-none absolute left-1 top-1 z-30 rounded bg-background/70 px-1.5 py-0.5 text-[10px] font-semibold text-accent-warn", "{name}" }
 			for (a, ar) in apartments.into_iter().zip(inner) {
 				{
 					let n = a.number;
 					let ch = apt_change(id, n);
 					let is_sel = appt() == Some(n);
-					let ring = if is_sel { "ring-2 ring-main-accent-t1 z-10" } else { "" };
+					let ring = if is_sel { "ring-2 ring-accent-debug z-10" } else { "" };
 					let (dim, stripes) = crate::uikit::provisional(a.status == ApartmentStatus::Purchasing);
 					rsx! {
 						button {

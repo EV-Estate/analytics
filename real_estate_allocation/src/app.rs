@@ -195,13 +195,13 @@ fn Home() -> Element {
 				// Discord-style prev/next, only while viewing an apartment; wraps around.
 				if appt().is_some() {
 					button {
-						class: "fixed left-2 top-1/2 z-40 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-main-black/70 text-2xl text-main-mist transition hover:text-white",
+						class: "fixed left-2 top-1/2 z-40 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-background/70 text-2xl text-ink transition hover:text-white",
 						"aria-label": "Previous apartment",
 						onclick: move |_| cycle_appt(building, appt, -1),
 						"‹"
 					}
 					button {
-						class: "fixed right-2 top-1/2 z-40 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-main-black/70 text-2xl text-main-mist transition hover:text-white",
+						class: "fixed right-2 top-1/2 z-40 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-background/70 text-2xl text-ink transition hover:text-white",
 						"aria-label": "Next apartment",
 						onclick: move |_| cycle_appt(building, appt, 1),
 						"›"
@@ -224,7 +224,7 @@ fn BuildTag() -> Element {
 			href: "https://github.com/ev-invest/real_estate_allocation/commit/{hash}",
 			target: "_blank",
 			rel: "noopener noreferrer",
-			class: "fixed bottom-1 right-2 z-10 font-mono text-[10px] text-muted-foreground/25 transition-colors hover:text-muted-foreground/70",
+			class: "fixed bottom-1 right-2 z-10 font-mono text-[10px] text-ink-soft/25 transition-colors hover:text-ink-soft/70",
 			if let Some(g) = seed_group() {
 				"{g}·"
 			}

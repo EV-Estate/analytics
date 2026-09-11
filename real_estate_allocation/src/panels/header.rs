@@ -47,16 +47,16 @@ fn Loaded(building: Building, appt: Option<u32>) -> Element {
 					Some(a) => rsx! {
 						Badge { variant: status_variant(a.status), "{status_label(a.status)}" }
 						match a.price {
-							Some(p) => rsx! { span { class: "text-sm font-medium text-main-accent-t2", "{p}" } },
+							Some(p) => rsx! { span { class: "text-sm font-medium text-positive", "{p}" } },
 							None => rsx! { span { class: "text-sm font-medium text-warn", "?" } },
 						}
 					},
 					None => rsx! {
-						span { class: "text-sm font-medium text-main-accent-t1",
+						span { class: "text-sm font-medium text-accent-debug",
 							"{building.lots_total()} lots"
 						}
 						match building.avg_price() {
-							Some(p) => rsx! { span { class: "text-sm font-medium text-main-accent-t2", "avg {p}" } },
+							Some(p) => rsx! { span { class: "text-sm font-medium text-positive", "avg {p}" } },
 							None => rsx! { span { class: "text-sm font-medium text-warn", "?" } },
 						}
 					},
@@ -86,12 +86,12 @@ fn Loaded(building: Building, appt: Option<u32>) -> Element {
 #[component]
 fn Empty() -> Element {
 	rsx! {
-		nav { class: "flex items-center gap-2 text-sm text-muted-foreground",
-			span { class: "text-foreground", "Buildings" }
+		nav { class: "flex items-center gap-2 text-sm text-ink-soft",
+			span { class: "text-ink", "Buildings" }
 		}
 		// Stats/actions are meaningless without a building, so row 2 becomes the mild
 		// warning nudging towards selecting one. `h-9` matches the action row's height.
-		div { class: "flex h-9 items-center text-sm font-medium text-main-accent-t3",
+		div { class: "flex h-9 items-center text-sm font-medium text-accent-warn",
 			"Select a building on the map, to populate the dashboard"
 		}
 	}
@@ -100,13 +100,13 @@ fn Empty() -> Element {
 #[component]
 fn Breadcrumb(building: String, appt: Option<u32>) -> Element {
 	rsx! {
-		nav { class: "flex items-center gap-2 text-sm text-muted-foreground",
+		nav { class: "flex items-center gap-2 text-sm text-ink-soft",
 			span { "Buildings" }
 			span { "›" }
-			span { class: if appt.is_some() { "" } else { "text-foreground" }, "{building}" }
+			span { class: if appt.is_some() { "" } else { "text-ink" }, "{building}" }
 			if let Some(n) = appt {
 				span { "›" }
-				span { class: "text-foreground", "Apt {n}" }
+				span { class: "text-ink", "Apt {n}" }
 			}
 		}
 	}

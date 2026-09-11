@@ -72,7 +72,7 @@ pub fn MapPanel() -> Element {
 					StateFilter { filter }
 					button {
 						r#type: "button",
-						class: "flex h-7 w-7 items-center justify-center rounded-md bg-background text-muted-foreground transition hover:text-foreground",
+						class: "flex h-7 w-7 items-center justify-center rounded-md bg-background text-ink-soft transition hover:text-ink",
 						"aria-label": "Center map on buildings",
 						onclick: move |_| {
 							#[cfg(target_arch = "wasm32")]
@@ -110,14 +110,14 @@ fn StateFilter(filter: Signal<Vec<PropertyStateKind>>) -> Element {
 					let on = cur.contains(&state);
 					// On: filled with the state colour + dark text. Off: outlined + muted.
 					let active = match state {
-						PropertyStateKind::Purchased => "bg-main-accent-t2",
-						PropertyStateKind::Interesting => "bg-main-accent-t3",
-						PropertyStateKind::Purchasing => "bg-main-accent-t4",
+						PropertyStateKind::Purchased => "bg-positive",
+						PropertyStateKind::Interesting => "bg-accent-warn",
+						PropertyStateKind::Purchasing => "bg-accent-info",
 					};
 					let cls = if on {
-						format!("h-7 rounded-md px-2.5 text-xs font-semibold text-main-black transition hover:brightness-110 {active}")
+						format!("h-7 rounded-md px-2.5 text-xs font-semibold text-background transition hover:brightness-110 {active}")
 					} else {
-						"h-7 rounded-md border border-border bg-main-surface px-2.5 text-xs font-medium text-muted-foreground transition hover:border-main-mist/40 hover:text-foreground".to_string()
+						"h-7 rounded-md border border-border bg-secondary px-2.5 text-xs font-medium text-ink-soft transition hover:border-ink/40 hover:text-ink".to_string()
 					};
 					rsx! {
 						button {

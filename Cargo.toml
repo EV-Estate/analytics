@@ -32,7 +32,7 @@ v_utils = { version = "^2.15.56", features = ["io", "macros", "cli"] }
 async-trait = "^0.1"
 dioxus = { version = "^0.7" }
 dioxus-ssr = "0.7"
-ev_lib = "^0.11.0"
+ev_lib = { version = "^0.11.0", default-features = false, features = ["uikit", "modern"] }
 ev_lib_classes = "^0.4.0"
 getrandom = { version = "^0.4", features = ["wasm_js"] }
 gloo-net = "^0.7"

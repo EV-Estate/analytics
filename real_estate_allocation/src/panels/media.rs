@@ -31,7 +31,7 @@ pub fn MediaPanel() -> Element {
 		Card { class: "flex h-full flex-col overflow-hidden",
 			CardContent { class: "flex-1 overflow-y-auto",
 				match selected() {
-					None => rsx! { p { class: "text-muted-foreground text-sm", "Select a building to view its media." } },
+					None => rsx! { p { class: "text-ink-soft text-sm", "Select a building to view its media." } },
 					Some(bid) => {
 						let appt = appt();
 						let files = files.read().clone().unwrap_or_default();
@@ -61,7 +61,7 @@ pub fn MediaPanel() -> Element {
 fn PicGrid(files: Vec<PropertyFile>) -> Element {
 	let pics: Vec<_> = files.into_iter().filter(|f| f.kind == FileKind::Pic).collect();
 	if pics.is_empty() {
-		return rsx! { p { class: "text-muted-foreground text-sm", "No pictures yet." } };
+		return rsx! { p { class: "text-ink-soft text-sm", "No pictures yet." } };
 	}
 	rsx! {
 		div { class: "grid grid-cols-2 gap-2 pt-2",
@@ -93,7 +93,7 @@ fn Pic(file: PropertyFile) -> Element {
 fn FileList(files: Vec<PropertyFile>, kind: FileKind) -> Element {
 	let items: Vec<_> = files.into_iter().filter(|f| f.kind == kind).collect();
 	if items.is_empty() {
-		return rsx! { p { class: "text-muted-foreground text-sm", "Nothing here yet." } };
+		return rsx! { p { class: "text-ink-soft text-sm", "Nothing here yet." } };
 	}
 	rsx! {
 		div { class: "flex flex-col gap-2 pt-2",
@@ -145,7 +145,7 @@ fn DropZone(building_id: BuildingId, appt: Option<u32>, on_uploaded: EventHandle
 
 	rsx! {
 		div {
-			class: "mt-3 border border-dashed border-border rounded-md p-4 text-center text-sm text-muted-foreground",
+			class: "mt-3 border border-dashed border-border rounded-md p-4 text-center text-sm text-ink-soft",
 			ondragover: move |e| e.prevent_default(),
 			ondrop: move |e| {
 				e.prevent_default();

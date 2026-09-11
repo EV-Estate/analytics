@@ -5,11 +5,10 @@
 //! (wasm → `bundle_origin()`, SSR → `""`), and the featured building via a prop.
 
 use dioxus::prelude::*;
-use ev_lib::uikit::Container;
-use real_estate_allocation_core::{MISSING, domain::Building, factors::profile};
-
 #[cfg(target_arch = "wasm32")]
 use dioxus::web::WebEventExt;
+use ev_lib::uikit::Container;
+use real_estate_allocation_core::{MISSING, domain::Building, factors::profile};
 
 // Banners are static assets served alongside the bundle; they resolve against the
 // asset origin (wherever the `.js` loaded from, or root-relative under the conductor).
@@ -79,7 +78,7 @@ pub fn featured_stats(building: &Featured) -> (String, String, String) {
 #[component]
 pub fn Overview(building: Featured) -> Element {
 	rsx! {
-		section { id: "portfolio", class: "relative border-t border-main-mist/10 py-24",
+		section { id: "portfolio", class: "relative border-t border-ink/10 py-24",
 			Container {
 				// Section header. `max-md:flex-col` not `flex-col md:flex-row`: mfe.css lives in
 				// the lowest-priority `reamfe` layer, so the host's unlayered `.flex-col` outranks
@@ -87,15 +86,15 @@ pub fn Overview(building: Featured) -> Element {
 				// only overriding below md gives the host no `.flex-col` on this node to grab.
 				div { class: "mb-16 flex max-md:flex-col justify-between md:items-end",
 					div {
-						span { class: "mb-3 block font-mono text-xs uppercase tracking-[0.3em] text-main-accent-t1",
+						span { class: "mb-3 block font-mono text-xs uppercase tracking-[0.3em] text-accent-debug",
 							"Investment Scope"
 						}
 						h2 { class: "font-serif text-3xl font-light text-white sm:text-5xl",
 							"Premium Asset "
-							span { class: "font-serif italic text-main-accent-t1", "Portfolio" }
+							span { class: "font-serif italic text-accent-debug", "Portfolio" }
 						}
 					}
-					p { class: "mt-4 max-w-md font-light text-sm text-main-mist/70 md:mt-0",
+					p { class: "mt-4 max-w-md font-light text-sm text-ink/70 md:mt-0",
 						"Curated, premium, high-yield developments across Quy Nhon city, focusing on high appreciation seaside villas and urban luxury residences."
 					}
 				}
@@ -126,26 +125,26 @@ fn FeaturedCard(building: Featured) -> Element {
 			href: "/rea/?building={Q1_PROPERTY}",
 			// no-underline: UA link styling propagates from the wrapping <a> to every
 			// descendant on preflight-less hosts (and children can't undo it).
-			class: "group relative flex min-h-[450px] flex-col justify-end overflow-hidden border border-main-mist/10 bg-main-black/40 no-underline md:col-span-2",
+			class: "group relative flex min-h-[450px] flex-col justify-end overflow-hidden border border-ink/10 bg-background/40 no-underline md:col-span-2",
 			div {
 				class: "absolute inset-0 z-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105",
 				style: "background-image: linear-gradient(to top, rgba(7,13,24,0.96) 10%, rgba(7,13,24,0.2)), url({origin}/mfe/{Q1_BANNER}?v={ASSET_V})",
 			}
-			div { class: "absolute right-4 top-4 bg-main-accent-t1 px-3 py-1.5 font-mono text-[0.625rem] font-bold uppercase tracking-widest text-main-black",
+			div { class: "absolute right-4 top-4 bg-accent-debug px-3 py-1.5 font-mono text-[0.625rem] font-bold uppercase tracking-widest text-background",
 				"Featured Deal"
 			}
 			div { class: "relative z-10 p-8",
-				div { class: "mb-3 flex items-center gap-2 font-mono text-xs text-main-accent-t1",
+				div { class: "mb-3 flex items-center gap-2 font-mono text-xs text-accent-debug",
 					IconPin {}
 					"Quy Nhơn Beachfront" // TODO: exact street address not in `place.json`
 				}
 				h3 { class: "mb-4 font-serif text-2xl text-white sm:text-3xl", "Q1 Tower Quy Nhơn" }
-				p { class: "mb-6 max-w-xl font-light text-sm text-main-mist/70",
+				p { class: "mb-6 max-w-xl font-light text-sm text-ink/70",
 					"Landmark twin-tower beachfront residences rising over Quy Nhơn's crescent bay — a lighthouse-inspired icon pairing five-star resort amenities with panoramic East Sea views."
 				}
-				div { class: "grid max-w-md grid-cols-3 gap-4 border-t border-main-mist/10 pt-6",
-					Stat { label: "Target Yield", value_class: "text-main-accent-t2", "{target_yield}" }
-					Stat { label: "Appreciation", value_class: "text-main-accent-t3", "{appreciation}" }
+				div { class: "grid max-w-md grid-cols-3 gap-4 border-t border-ink/10 pt-6",
+					Stat { label: "Target Yield", value_class: "text-positive", "{target_yield}" }
+					Stat { label: "Appreciation", value_class: "text-accent-warn", "{appreciation}" }
 					Stat { label: "Status", value_class: "text-white", "{status}" }
 				}
 			}
@@ -160,26 +159,26 @@ fn SideCard() -> Element {
 	rsx! {
 		a {
 			href: "/rea/?building={TMS_PROPERTY}",
-			class: "group relative flex min-h-[450px] flex-col justify-end overflow-hidden border border-main-mist/10 bg-main-black/40 no-underline",
+			class: "group relative flex min-h-[450px] flex-col justify-end overflow-hidden border border-ink/10 bg-background/40 no-underline",
 			div {
 				class: "absolute inset-0 z-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105",
 				style: "background-image: linear-gradient(to top, rgba(7,13,24,0.96) 20%, rgba(7,13,24,0.4)), url({origin}/mfe/{TMS_BANNER}?v={ASSET_V})",
 			}
 			div { class: "relative z-10 p-8",
-				div { class: "mb-3 flex items-center gap-2 font-mono text-xs text-main-accent-t1",
+				div { class: "mb-3 flex items-center gap-2 font-mono text-xs text-accent-debug",
 					IconPin {}
 					"28 Nguyễn Huệ, Quy Nhơn"
 				}
 				h3 { class: "mb-4 font-serif text-xl text-white sm:text-2xl", "TMS Luxury Hotel & Residence" }
-				p { class: "mb-6 font-light text-sm text-main-mist/70",
+				p { class: "mb-6 font-light text-sm text-ink/70",
 					"Quy Nhơn's tallest landmark — a 42-floor beachfront tower pairing five-star Grand Hyams hotel service with branded condotel residences steps from the city beach."
 				}
-				div { class: "flex items-center justify-between border-t border-main-mist/10 pt-6",
+				div { class: "flex items-center justify-between border-t border-ink/10 pt-6",
 					div {
-						span { class: "mb-0.5 block font-mono text-[0.5625rem] uppercase text-main-mist/40", "Avg. Apartment" }
+						span { class: "mb-0.5 block font-mono text-[0.5625rem] uppercase text-ink/40", "Avg. Apartment" }
 						span { class: "text-sm font-serif font-bold text-white", "$76,000" }
 					}
-					span { class: "flex items-center font-mono text-xs tracking-wider text-main-accent-t1 transition-colors group-hover:text-white",
+					span { class: "flex items-center font-mono text-xs tracking-wider text-accent-debug transition-colors group-hover:text-white",
 						"View Property"
 						IconArrow {}
 					}
@@ -193,21 +192,21 @@ fn SideCard() -> Element {
 #[component]
 fn WhyCard() -> Element {
 	rsx! {
-		div { class: "flex flex-col justify-between border border-main-mist/10 bg-main-card p-8",
+		div { class: "flex flex-col justify-between border border-ink/10 bg-card p-8",
 			div {
-				div { class: "mb-6 inline-flex items-center gap-1.5 border border-main-accent-t1/20 bg-main-accent-t1/10 px-2 py-1 font-mono text-[0.5625rem] uppercase tracking-wider text-main-accent-t1",
+				div { class: "mb-6 inline-flex items-center gap-1.5 border border-accent-debug/20 bg-accent-debug/10 px-2 py-1 font-mono text-[0.5625rem] uppercase tracking-wider text-accent-debug",
 					IconTrend {}
 					"Market Growth"
 				}
 				h3 { class: "mb-4 font-serif text-xl text-white sm:text-2xl", "Why Quy Nhon?" }
-				p { class: "mb-6 font-light text-sm text-main-mist/70",
+				p { class: "mb-6 font-light text-sm text-ink/70",
 					"Positioned as the new gateway of Central Vietnam, Quy Nhon is undergoing a multi-billion dollar infrastructure upgrade, transforming into a global science and beach tourism destination."
 				}
 			}
-			ul { class: "space-y-3 border-t border-main-mist/10 pt-6 font-mono text-xs",
+			ul { class: "space-y-3 border-t border-ink/10 pt-6 font-mono text-xs",
 				Row { label: "Infrastructure Investment:", value_class: "text-white", "$2.4 Billion" }
-				Row { label: "Tourism Growth Rate:", value_class: "text-main-accent-t2", "+28% YoY" }
-				Row { label: "FDI Inflow (2025):", value_class: "text-main-accent-t2", "$420M" }
+				Row { label: "Tourism Growth Rate:", value_class: "text-positive", "+28% YoY" }
+				Row { label: "FDI Inflow (2025):", value_class: "text-positive", "$420M" }
 			}
 		}
 	}
@@ -255,21 +254,21 @@ fn Calculator() -> Element {
 	let balanced = off_by.abs() < 0.5;
 
 	rsx! {
-		div { id: "calculator", class: "flex flex-col gap-6 border border-main-mist/10 bg-main-card p-6 md:col-span-2",
+		div { id: "calculator", class: "flex flex-col gap-6 border border-ink/10 bg-card p-6 md:col-span-2",
 			// Intro + swap slider | output panel
 			div { class: "grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_20rem]",
 				div { class: "flex flex-col gap-5",
 					div { class: "flex flex-col gap-2",
-						span { class: "font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-main-accent-t1", "Risk Terminal" }
+						span { class: "font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-accent-debug", "Risk Terminal" }
 						h3 { class: "font-serif text-[1.375rem] text-white", "Correlation Profile" }
-						p { class: "font-light text-[0.8125rem] leading-relaxed text-main-mist/70",
+						p { class: "font-light text-[0.8125rem] leading-relaxed text-ink/70",
 							"We are judged on our marginal effect on your book — accretive because we are nearly uncorrelated with the alpha factors you already own."
 						}
 					}
 					div { class: "mt-auto flex flex-col gap-2 font-mono",
 						div { class: "flex items-center justify-between",
-							label { class: "text-[0.625rem] uppercase tracking-wider text-main-mist/40", "Allocation swapped into Vietnam" }
-							span { class: "text-[0.8125rem] font-bold text-main-accent-t1", "{swap():.0}%" }
+							label { class: "text-[0.625rem] uppercase tracking-wider text-ink/40", "Allocation swapped into Vietnam" }
+							span { class: "text-[0.8125rem] font-bold text-accent-debug", "{swap():.0}%" }
 						}
 						span {
 							class: "relative flex h-6 w-full touch-none select-none items-center",
@@ -301,15 +300,15 @@ fn Calculator() -> Element {
 							onpointerup: move |_| dragging.set(false),
 							onpointercancel: move |_| dragging.set(false),
 							span {
-								class: "relative h-1.5 w-full grow overflow-hidden rounded-full bg-main-black/55",
+								class: "relative h-1.5 w-full grow overflow-hidden rounded-full bg-background/55",
 								onmounted: move |e: MountedEvent| track.set(Some(e.data())),
 								span {
-									class: "absolute h-full bg-main-accent-t1",
+									class: "absolute h-full bg-accent-debug",
 									style: "width: {pct}%;",
 								}
 							}
 							span {
-								class: "block size-4 shrink-0 rounded-full border border-main-accent-t1 bg-white shadow-sm",
+								class: "block size-4 shrink-0 rounded-full border border-accent-debug bg-white shadow-sm",
 								style: "position: absolute; left: {pct}%; top: 50%; transform: translate(-50%, -50%);",
 								role: "slider",
 								tabindex: "0",
@@ -329,7 +328,7 @@ fn Calculator() -> Element {
 								},
 							}
 						}
-						div { class: "flex justify-between text-[0.625rem] text-main-mist/30",
+						div { class: "flex justify-between text-[0.625rem] text-ink/30",
 							span { "0%" }
 							span { "25%" }
 							span { "50%" }
@@ -340,21 +339,21 @@ fn Calculator() -> Element {
 				}
 
 				// Output panel
-				div { class: "flex flex-col gap-3 border border-main-mist/10 bg-main-surface p-5",
-					span { class: "font-mono text-[0.625rem] uppercase tracking-wider text-main-mist/40", "Δ Effective Risk Premia" }
-					span { class: "font-serif text-3xl font-bold text-main-accent-t3", "{out.delta_risk_premia * 10_000.0:+.1} bps" }
-					div { class: "border-t border-main-mist/10" }
+				div { class: "flex flex-col gap-3 border border-ink/10 bg-secondary p-5",
+					span { class: "font-mono text-[0.625rem] uppercase tracking-wider text-ink/40", "Δ Effective Risk Premia" }
+					span { class: "font-serif text-3xl font-bold text-accent-warn", "{out.delta_risk_premia * 10_000.0:+.1} bps" }
+					div { class: "border-t border-ink/10" }
 					div { class: "flex gap-7 font-mono",
 						div { class: "flex flex-col gap-1",
-							span { class: "text-[0.625rem] uppercase tracking-wider text-main-mist/40", "Δ Expected Perf" }
-							span { class: "text-[0.8125rem] font-bold text-main-accent-t2", "{out.delta_performance * 100.0:+.2}%" }
+							span { class: "text-[0.625rem] uppercase tracking-wider text-ink/40", "Δ Expected Perf" }
+							span { class: "text-[0.8125rem] font-bold text-positive", "{out.delta_performance * 100.0:+.2}%" }
 						}
 						div { class: "flex flex-col gap-1",
-							span { class: "text-[0.625rem] uppercase tracking-wider text-main-mist/40", "ρ (S, P)" }
+							span { class: "text-[0.625rem] uppercase tracking-wider text-ink/40", "ρ (S, P)" }
 							span { class: "text-[0.8125rem] font-bold text-white", "{out.rho_sp:+.2}" }
 						}
 					}
-					p { class: "mt-auto font-light text-[0.625rem] leading-snug text-main-mist/30",
+					p { class: "mt-auto font-light text-[0.625rem] leading-snug text-ink/30",
 						"*Correlation figures indicative placeholders. Risk cost under probabilistic-Kelly (γ≈1). Actual results may vary."
 					}
 				}
@@ -363,14 +362,14 @@ fn Calculator() -> Element {
 			// Factor mixer — one row per factor: label · ρ · draggable exposure bar · stepper.
 			div { class: "flex flex-col gap-3 font-mono",
 				div { class: "flex items-center justify-between",
-					span { class: "text-[0.625rem] font-semibold uppercase tracking-[0.15em] text-main-mist/40", "Factor Exposures" }
+					span { class: "text-[0.625rem] font-semibold uppercase tracking-[0.15em] text-ink/40", "Factor Exposures" }
 					div { class: "flex items-center gap-2",
 						span {
-							class: if balanced { "text-[0.5625rem] uppercase tracking-wider text-main-mist/55" } else { "rounded border border-main-accent-t3/50 bg-main-accent-t3/10 px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wider text-main-accent-t3" },
+							class: if balanced { "text-[0.5625rem] uppercase tracking-wider text-ink/55" } else { "rounded border border-accent-warn/50 bg-accent-warn/10 px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wider text-accent-warn" },
 							title: "{off_by:+.0}% vs 100%",
 							"Σ {total:.0}%"
 						}
-						span { class: "text-[0.5625rem] uppercase tracking-wider text-main-mist/30", "drag bars · type · ↑↓" }
+						span { class: "text-[0.5625rem] uppercase tracking-wider text-ink/30", "drag bars · type · ↑↓" }
 					}
 				}
 				div { class: "flex flex-col gap-2",
@@ -378,12 +377,12 @@ fn Calculator() -> Element {
 						FactorRow { label: f.label, rho: f.rho, value: w }
 					}
 				}
-				div { class: "border-t border-main-mist/10" }
+				div { class: "border-t border-ink/10" }
 				// Host book input — teal-marked: it's the user's own number, not a factor weight.
 				div { class: "flex items-center gap-3",
-					span { class: "h-3.5 w-[3px] shrink-0 rounded-sm bg-main-accent-t1" }
-					span { class: "flex-1 text-[0.625rem] uppercase tracking-wide text-main-mist/70 sm:flex-none", "Host YoY return" }
-					span { class: "hidden text-[0.5625rem] uppercase tracking-wider text-main-mist/30 sm:block sm:flex-1",
+					span { class: "h-3.5 w-[3px] shrink-0 rounded-sm bg-accent-debug" }
+					span { class: "flex-1 text-[0.625rem] uppercase tracking-wide text-ink/70 sm:flex-none", "Host YoY return" }
+					span { class: "hidden text-[0.5625rem] uppercase tracking-wider text-ink/30 sm:block sm:flex-1",
 						"your book's current return — not a factor weight"
 					}
 					ValueStepper { value: yoy, step: 0.5, big_step: 10.0, min: -50.0, max: 100.0, suffix: "%", accent: true }
@@ -407,9 +406,9 @@ fn FactorRow(label: &'static str, rho: f64, value: Signal<f64>) -> Element {
 
 	rsx! {
 		div { class: "grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-1.5 md:grid-cols-[11.25rem_2.5rem_minmax(0,1fr)_auto]",
-			span { class: "truncate text-[0.625rem] uppercase tracking-wide text-main-mist/70", {label} }
+			span { class: "truncate text-[0.625rem] uppercase tracking-wide text-ink/70", {label} }
 			span {
-				class: if rho >= 0.0 { "text-right text-[0.625rem] text-main-accent-t2" } else { "text-right text-[0.625rem] text-main-accent-t3" },
+				class: if rho >= 0.0 { "text-right text-[0.625rem] text-positive" } else { "text-right text-[0.625rem] text-accent-warn" },
 				"{rho:+.2}"
 			}
 			span {
@@ -459,15 +458,15 @@ fn FactorRow(label: &'static str, rho: f64, value: Signal<f64>) -> Element {
 					value.set(next.clamp(EXPO_MIN, EXPO_MAX));
 				},
 				span {
-					class: "relative h-1.5 w-full overflow-hidden rounded-full bg-main-black/55",
+					class: "relative h-1.5 w-full overflow-hidden rounded-full bg-background/55",
 					onmounted: move |e: MountedEvent| track.set(Some(e.data())),
 					span {
-						class: "absolute h-full rounded-full bg-main-accent-t1",
+						class: "absolute h-full rounded-full bg-accent-debug",
 						style: "width: {pct}%;",
 					}
 				}
 				span {
-					class: "pointer-events-none absolute block size-2.5 rounded-full border border-main-accent-t1 bg-white shadow-sm",
+					class: "pointer-events-none absolute block size-2.5 rounded-full border border-accent-debug bg-white shadow-sm",
 					style: "left: {pct}%; top: 50%; transform: translate(-50%, -50%);",
 				}
 			}
@@ -512,25 +511,25 @@ fn ValueStepper(value: Signal<f64>, step: f64, big_step: f64, min: f64, max: f64
 	// those), and the form controls just inherit them.
 	rsx! {
 		div {
-			class: if accent { "flex h-[1.375rem] shrink-0 items-stretch overflow-hidden rounded border border-main-accent-t1/40 bg-main-black/40 font-mono text-xs text-white" } else { "flex h-[1.375rem] shrink-0 items-stretch overflow-hidden rounded border border-main-mist/20 bg-main-black/40 font-mono text-xs text-white" },
+			class: if accent { "flex h-[1.375rem] shrink-0 items-stretch overflow-hidden rounded border border-accent-debug/40 bg-background/40 font-mono text-xs text-white" } else { "flex h-[1.375rem] shrink-0 items-stretch overflow-hidden rounded border border-ink/20 bg-background/40 font-mono text-xs text-white" },
 			button {
 				r#type: "button",
 				class: "group/btn flex cursor-pointer appearance-none border-0 bg-transparent p-0",
 				onclick: move |_| nudge(big_step),
-				span { class: "flex h-full items-center px-2 text-[0.625rem] font-semibold text-main-mist/55 transition-colors group-hover/btn:bg-main-mist/5 group-hover/btn:text-white",
+				span { class: "flex h-full items-center px-2 text-[0.625rem] font-semibold text-ink/55 transition-colors group-hover/btn:bg-ink/5 group-hover/btn:text-white",
 					"+{big_step:.0}"
 				}
 			}
-			span { class: "w-px shrink-0 bg-main-mist/20" }
+			span { class: "w-px shrink-0 bg-ink/20" }
 			button {
 				r#type: "button",
 				class: "group/btn flex cursor-pointer appearance-none border-0 bg-transparent p-0",
 				onclick: move |_| nudge(-big_step),
-				span { class: "flex h-full items-center px-2 text-[0.625rem] font-semibold text-main-mist/55 transition-colors group-hover/btn:bg-main-mist/5 group-hover/btn:text-white",
+				span { class: "flex h-full items-center px-2 text-[0.625rem] font-semibold text-ink/55 transition-colors group-hover/btn:bg-ink/5 group-hover/btn:text-white",
 					"−{big_step:.0}"
 				}
 			}
-			span { class: "w-px shrink-0 bg-main-mist/20" }
+			span { class: "w-px shrink-0 bg-ink/20" }
 			input {
 				r#type: "text",
 				inputmode: "decimal",
@@ -562,7 +561,7 @@ fn ValueStepper(value: Signal<f64>, step: f64, big_step: f64, min: f64, max: f64
 fn Stat(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		div {
-			span { class: "mb-1 block font-mono text-[0.625rem] uppercase text-main-mist/40", "{label}" }
+			span { class: "mb-1 block font-mono text-[0.625rem] uppercase text-ink/40", "{label}" }
 			span { class: "text-lg font-serif font-bold {value_class}", {children} }
 		}
 	}
@@ -572,7 +571,7 @@ fn Stat(label: String, #[props(default)] value_class: String, children: Element)
 fn Row(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		li { class: "flex justify-between",
-			span { class: "text-main-mist/40", "{label}" }
+			span { class: "text-ink/40", "{label}" }
 			span { class: "font-bold {value_class}", {children} }
 		}
 	}

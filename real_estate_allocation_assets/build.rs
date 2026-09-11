@@ -20,7 +20,7 @@ fn main() {
 	// unpacked at no path a committed `@source` could reach. The crate ships
 	// both as data instead.
 	write(&site.join("uikit_classes.txt"), ev_lib_classes::CLASS_INVENTORY);
-	write(&site.join("assets/tokens.css"), ev_lib_classes::TOKENS_LEGACY_CSS);
+	write(&site.join("assets/tokens.css"), ev_lib_classes::TOKENS_CSS);
 }
 
 /// Only touch the file when the bytes change, so a no-op build does not restat

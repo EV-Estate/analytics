@@ -18,8 +18,8 @@ pub fn LotsPanel() -> Element {
 			CardContent { class: "flex-1 overflow-hidden",
 				match &*building.read() {
 					Some(Some(b)) if appt().is_none() => rsx! { Lots { building: b.clone() } },
-					Some(Some(_)) => rsx! { p { class: "text-sm text-muted-foreground", "Lot breakdown is shown at building level." } },
-					Some(None) => rsx! { p { class: "text-sm text-muted-foreground", "Select a building to see its lots." } },
+					Some(Some(_)) => rsx! { p { class: "text-sm text-ink-soft", "Lot breakdown is shown at building level." } },
+					Some(None) => rsx! { p { class: "text-sm text-ink-soft", "Select a building to see its lots." } },
 					None => rsx! { Skeleton { class: "h-full w-full" } },
 				}
 			}
@@ -53,17 +53,17 @@ fn Lots(building: Building) -> Element {
 			div { class: "flex w-80 flex-col gap-7",
 				div { class: "grid grid-cols-3 gap-3",
 					Tile { label: "Total lots", value: total, value_class: "text-white" }
-					Tile { label: "Sold", value: sold, value_class: "text-main-accent-t3" }
-					Tile { label: "Available", value: available, value_class: "text-main-accent-t2" }
+					Tile { label: "Sold", value: sold, value_class: "text-accent-warn" }
+					Tile { label: "Available", value: available, value_class: "text-positive" }
 				}
 				div { class: "flex flex-col items-center gap-6",
 					div { class: "relative h-48 w-48 rounded-full", style: "background:{gradient}",
-						div { class: "absolute inset-[26%] flex flex-col items-center justify-center gap-0.5 rounded-full bg-main-card",
-							span { class: "font-serif text-3xl font-semibold text-main-accent-t3", "{share * 100.0:.1}%" }
-							span { class: "text-[10px] uppercase tracking-widest text-muted-foreground", "Your share" }
+						div { class: "absolute inset-[26%] flex flex-col items-center justify-center gap-0.5 rounded-full bg-card",
+							span { class: "font-serif text-3xl font-semibold text-accent-warn", "{share * 100.0:.1}%" }
+							span { class: "text-[10px] uppercase tracking-widest text-ink-soft", "Your share" }
 						}
 					}
-					div { class: "flex items-center gap-5 text-xs text-muted-foreground",
+					div { class: "flex items-center gap-5 text-xs text-ink-soft",
 						Legend { color: "#f2c94c", label: "Sold" }
 						Legend { color: "#f6dd86", label: "Your Selection" }
 						Legend { color: "#2c3342", label: "Available" }
@@ -77,9 +77,9 @@ fn Lots(building: Building) -> Element {
 #[component]
 fn Tile(label: String, value: usize, value_class: String) -> Element {
 	rsx! {
-		div { class: "flex flex-col items-center gap-1 rounded-md border border-border bg-main-surface py-3",
+		div { class: "flex flex-col items-center gap-1 rounded-md border border-border bg-secondary py-3",
 			span { class: "font-serif text-3xl font-semibold {value_class}", "{value}" }
-			span { class: "text-[10px] uppercase tracking-widest text-muted-foreground", "{label}" }
+			span { class: "text-[10px] uppercase tracking-widest text-ink-soft", "{label}" }
 		}
 	}
 }

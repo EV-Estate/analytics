@@ -21,7 +21,7 @@ pub fn DetailsPanel() -> Element {
 							None => rsx! { BuildingDetails { building: b.clone() } },
 						}
 					}
-					Some(None) => rsx! { p { class: "text-sm text-muted-foreground", "Select a building to see its terms." } },
+					Some(None) => rsx! { p { class: "text-sm text-ink-soft", "Select a building to see its terms." } },
 					None => rsx! { Skeleton { class: "h-48 w-full" } },
 				}
 			}
@@ -41,9 +41,9 @@ fn ApartmentDetails(apt: Apartment) -> Element {
 	rsx! {
 		div { class: "flex flex-col",
 			Kv { label: "Apartment", "#{apt.number}" }
-			Kv { label: "Status", value_class: "text-main-accent-t3", "{status}" }
+			Kv { label: "Status", value_class: "text-accent-warn", "{status}" }
 			match apt.price {
-				Some(p) => rsx! { Kv { label: "Price", value_class: "text-main-accent-t3", "{p}" } },
+				Some(p) => rsx! { Kv { label: "Price", value_class: "text-accent-warn", "{p}" } },
 				None => rsx! { Kv { label: "Price", value_class: "text-warn", "?" } },
 			}
 		}
@@ -55,7 +55,7 @@ fn BuildingDetails(building: Building) -> Element {
 	rsx! {
 		div { class: "flex flex-col",
 			match building.avg_price() {
-				Some(p) => rsx! { Kv { label: "Avg apt. price", value_class: "text-main-accent-t3", "{p}" } },
+				Some(p) => rsx! { Kv { label: "Avg apt. price", value_class: "text-accent-warn", "{p}" } },
 				None => rsx! { Kv { label: "Avg apt. price", value_class: "text-warn", "?" } },
 			}
 
@@ -68,14 +68,14 @@ fn BuildingDetails(building: Building) -> Element {
 			Kv {
 				label: "Construction",
 				value_class: match building.construction {
-					ConstructionStatus::Completed => "text-main-accent-t2",
+					ConstructionStatus::Completed => "text-positive",
 					ConstructionStatus::UnderConstruction => "text-warn",
 				},
 				"{building.construction}"
 			}
 
 			if building.target_appreciation > 0.0 {
-				Kv { label: "Target appreciation", value_class: "text-main-accent-t3", "{building.target_appreciation:.0}% / yr" }
+				Kv { label: "Target appreciation", value_class: "text-accent-warn", "{building.target_appreciation:.0}% / yr" }
 			}
 
 			if let Some(deal) = building.deal.as_ref() {
@@ -83,7 +83,7 @@ fn BuildingDetails(building: Building) -> Element {
 			}
 
 			if let Some(loan) = building.loan.as_ref() {
-				Kv { label: "Loan rate", value_class: "text-main-accent-t1", "{loan.rate_pct:.2}%" }
+				Kv { label: "Loan rate", value_class: "text-accent-debug", "{loan.rate_pct:.2}%" }
 				Kv { label: "Term", "{loan.term_years} yr" }
 				Kv { label: "Lender", "{loan.lender}" }
 			}
@@ -109,7 +109,7 @@ fn BuildingDetails(building: Building) -> Element {
 fn Kv(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		div { class: "flex items-center justify-between gap-4 border-t border-border py-2.5 first:border-t-0",
-			span { class: "text-sm text-muted-foreground", "{label}" }
+			span { class: "text-sm text-ink-soft", "{label}" }
 			span { class: "text-right text-sm font-semibold {value_class}", {children} }
 		}
 	}
@@ -121,7 +121,7 @@ fn Kv(label: String, #[props(default)] value_class: String, children: Element) -
 fn Stat(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		div { class: "flex flex-col gap-1",
-			span { class: "text-[10px] font-medium uppercase tracking-wide text-muted-foreground", "{label}" }
+			span { class: "text-[10px] font-medium uppercase tracking-wide text-ink-soft", "{label}" }
 			span { class: "font-serif text-lg font-semibold {value_class}", {children} }
 		}
 	}
@@ -158,8 +158,8 @@ fn DeveloperKv(name: String) -> Element {
 fn Note(label: String, children: Element) -> Element {
 	rsx! {
 		div { class: "mt-2 flex flex-col gap-1.5 border-t border-border pt-3",
-			span { class: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", "{label}" }
-			p { class: "text-sm leading-relaxed text-muted-foreground", {children} }
+			span { class: "text-xs font-semibold uppercase tracking-wide text-ink-soft", "{label}" }
+			p { class: "text-sm leading-relaxed text-ink-soft", {children} }
 		}
 	}
 }

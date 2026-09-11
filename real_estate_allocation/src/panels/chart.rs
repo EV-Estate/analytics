@@ -19,7 +19,7 @@ pub fn ChartPanel() -> Element {
 						let apt = appt().and_then(|n| b.apartments.iter().find(|a| a.number == n).cloned());
 						rsx! { ChartBody { building: b.clone(), apt } }
 					}
-					Some(None) => rsx! { p { class: "text-sm text-muted-foreground", "Select a building on the map." } },
+					Some(None) => rsx! { p { class: "text-sm text-ink-soft", "Select a building on the map." } },
 					None => rsx! { Skeleton { class: "h-full w-full" } },
 				}
 			}
@@ -36,7 +36,7 @@ fn ChartBody(building: Building, apt: Option<Apartment>) -> Element {
 	};
 	rsx! {
 		div { class: "flex flex-col gap-0.5",
-			span { class: "text-xs uppercase tracking-wide text-muted-foreground", "{label}" }
+			span { class: "text-xs uppercase tracking-wide text-ink-soft", "{label}" }
 			match price {
 				Some(p) => rsx! { span { class: "font-serif text-3xl font-semibold", "{p}" } },
 				None => rsx! { span { class: "font-serif text-3xl font-semibold text-warn", "?" } },
