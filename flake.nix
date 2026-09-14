@@ -371,11 +371,20 @@
             # RUSTFLAGS drops the wasm-only cfgs the buildPhase exported (the
             # getrandom_backend=wasm_js one breaks a native build). id="portfolio" is the
             # conductor's scroll anchor — a build-time invariant, not a runtime hope.
-            RUSTFLAGS= SNAPSHOT_CSS="$out/mfe.css" \
-              cargo run -p real_estate_allocation_embeds --example portfolio_snapshot --release --offline \
-              > "$out/portfolio.html"
-            test -s "$out/portfolio.html"
-            grep -q 'id="portfolio"' "$out/portfolio.html"
+            #
+            # One file per locale. The snapshot shows *permanently* if the bundle never
+            # upgrades, so a single `<html lang="en">` served on /ru would not be a flash
+            # of English — it would be English forever. The conductor picks the file by
+            # page locale and asserts it at ITS build, so a locale missing here is a
+            # broken build there rather than a silent monolingual fallback.
+            for locale in en ru vi fr de; do
+              RUSTFLAGS= SNAPSHOT_CSS="$out/mfe.css" \
+                cargo run -p real_estate_allocation_embeds --example portfolio_snapshot --release --offline -- "$locale" \
+                > "$out/portfolio.$locale.html"
+              test -s "$out/portfolio.$locale.html"
+              grep -q 'id="portfolio"' "$out/portfolio.$locale.html"
+              grep -q "<html lang=\"$locale\"" "$out/portfolio.$locale.html"
+            done
             runHook postInstall
           '';
           doCheck = false;

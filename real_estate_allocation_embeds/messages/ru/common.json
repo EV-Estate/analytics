@@ -1,0 +1,142 @@
+{
+  "portfolio.calculator.blurb": {
+    "en": "We are judged on our marginal effect on your book — accretive because we are nearly uncorrelated with the alpha factors you already own.",
+    "t": "Нас оценивают по предельному эффекту для вашего портфеля — он положителен, потому что мы почти не коррелируем с альфа-факторами, которыми вы уже владеете."
+  },
+  "portfolio.calculator.deltaPerf": {
+    "en": "Δ Expected Perf",
+    "t": "Δ ожидаемой доходности"
+  },
+  "portfolio.calculator.deltaRiskPremia": {
+    "en": "Δ Effective Risk Premia",
+    "t": "Δ эффективной премии за риск"
+  },
+  "portfolio.calculator.disclaimer": {
+    "en": "*Correlation figures indicative placeholders. Risk cost under probabilistic-Kelly (γ≈1). Actual results may vary.",
+    "t": "*Показатели корреляции — ориентировочные значения. Стоимость риска рассчитана по вероятностному критерию Келли (γ≈1). Фактические результаты могут отличаться."
+  },
+  "portfolio.calculator.exposureAria": {
+    "en": "{name} exposure",
+    "t": "экспозиция: {name}"
+  },
+  "portfolio.calculator.eyebrow": {
+    "en": "Risk Terminal",
+    "t": "Риск-терминал"
+  },
+  "portfolio.calculator.factorExposures": {
+    "en": "Factor Exposures",
+    "t": "Факторные экспозиции"
+  },
+  "portfolio.calculator.hint": {
+    "en": "drag bars · type · ↑↓",
+    "t": "тяните полосы · вводите · ↑↓"
+  },
+  "portfolio.calculator.hostYoy": {
+    "en": "Host YoY return",
+    "t": "Доходность портфеля YoY"
+  },
+  "portfolio.calculator.hostYoyHint": {
+    "en": "your book's current return — not a factor weight",
+    "t": "текущая доходность вашего портфеля — не вес фактора"
+  },
+  "portfolio.calculator.swapLabel": {
+    "en": "Allocation swapped into Vietnam",
+    "t": "Доля, переведённая во Вьетнам"
+  },
+  "portfolio.calculator.title": {
+    "en": "Correlation Profile",
+    "t": "Профиль корреляции"
+  },
+  "portfolio.featured.badge": {
+    "en": "Featured Deal",
+    "t": "Избранная сделка"
+  },
+  "portfolio.featured.q1.blurb": {
+    "en": "Landmark twin-tower beachfront residences rising over Quy Nhơn's crescent bay — a lighthouse-inspired icon pairing five-star resort amenities with panoramic East Sea views.",
+    "t": "Знаковые резиденции в двух башнях на берегу залива-полумесяца Куинёна — вдохновлённый маяком символ города, где пятизвёздочный курортный сервис сочетается с панорамным видом на Восточное море."
+  },
+  "portfolio.featured.q1.location": {
+    "en": "Quy Nhơn Beachfront",
+    "t": "Первая линия, Куинён"
+  },
+  "portfolio.featured.q1.name": {
+    "en": "Q1 Tower Quy Nhơn",
+    "t": "Q1 Tower Куинён"
+  },
+  "portfolio.heading.accent": {
+    "en": "Portfolio",
+    "t": "премиальных активов"
+  },
+  "portfolio.heading.lead": {
+    "en": "Premium Asset",
+    "t": "Портфель"
+  },
+  "portfolio.intro": {
+    "en": "Curated, premium, high-yield developments across Quy Nhon city, focusing on high appreciation seaside villas and urban luxury residences.",
+    "t": "Отобранные премиальные проекты с высокой доходностью в городе Куинён: виллы на первой линии с высоким потенциалом роста и городские резиденции класса люкс."
+  },
+  "portfolio.scope": {
+    "en": "Investment Scope",
+    "t": "Инвестиционный охват"
+  },
+  "portfolio.side.cta": {
+    "en": "View Property",
+    "t": "Смотреть объект"
+  },
+  "portfolio.side.tms.avgApartment": {
+    "en": "Avg. Apartment",
+    "t": "Средняя квартира"
+  },
+  "portfolio.side.tms.blurb": {
+    "en": "Quy Nhơn's tallest landmark — a 42-floor beachfront tower pairing five-star Grand Hyams hotel service with branded condotel residences steps from the city beach.",
+    "t": "Самая высокая доминанта Куинёна — 42-этажная башня на берегу моря, где пятизвёздочный сервис отеля Grand Hyams соседствует с брендированными кондотель-резиденциями в шаге от городского пляжа."
+  },
+  "portfolio.side.tms.location": {
+    "en": "28 Nguyễn Huệ, Quy Nhơn",
+    "t": "28 Нгуен Хюэ, Куинён"
+  },
+  "portfolio.side.tms.name": {
+    "en": "TMS Luxury Hotel & Residence",
+    "t": "TMS Luxury Hotel & Residence"
+  },
+  "portfolio.stat.appreciation": {
+    "en": "Appreciation",
+    "t": "Рост стоимости"
+  },
+  "portfolio.stat.status": {
+    "en": "Status",
+    "t": "Статус"
+  },
+  "portfolio.stat.targetYield": {
+    "en": "Target Yield",
+    "t": "Целевая доходность"
+  },
+  "portfolio.why.badge": {
+    "en": "Market Growth",
+    "t": "Рост рынка"
+  },
+  "portfolio.why.blurb": {
+    "en": "Positioned as the new gateway of Central Vietnam, Quy Nhon is undergoing a multi-billion dollar infrastructure upgrade, transforming into a global science and beach tourism destination.",
+    "t": "Куинён позиционируется как новые ворота Центрального Вьетнама: город проходит инфраструктурную модернизацию на миллиарды долларов и превращается в мировой центр науки и пляжного туризма."
+  },
+  "portfolio.why.fdi": {
+    "en": "FDI Inflow (2025):",
+    "t": "Приток ПИИ (2025):"
+  },
+  "portfolio.why.infrastructure": {
+    "en": "Infrastructure Investment:",
+    "t": "Инвестиции в инфраструктуру:"
+  },
+  "portfolio.why.infrastructureValue": {
+    "en": "$2.4 Billion",
+    "t": "$2,4 млрд"
+  },
+  "portfolio.why.title": {
+    "en": "Why Quy Nhon?",
+    "t": "Почему Куинён?"
+  },
+  "portfolio.why.tourism": {
+    "en": "Tourism Growth Rate:",
+    "t": "Темп роста туризма:"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "portfolio.calculator.blurb": {
+    "en": "We are judged on our marginal effect on your book — accretive because we are nearly uncorrelated with the alpha factors you already own.",
+    "t": "Chúng tôi được đánh giá qua tác động biên lên danh mục của bạn — có lợi vì chúng tôi gần như không tương quan với các yếu tố alpha bạn đang nắm giữ."
+  },
+  "portfolio.calculator.deltaPerf": {
+    "en": "Δ Expected Perf",
+    "t": "Δ hiệu suất kỳ vọng"
+  },
+  "portfolio.calculator.deltaRiskPremia": {
+    "en": "Δ Effective Risk Premia",
+    "t": "Δ phần bù rủi ro hiệu dụng"
+  },
+  "portfolio.calculator.disclaimer": {
+    "en": "*Correlation figures indicative placeholders. Risk cost under probabilistic-Kelly (γ≈1). Actual results may vary.",
+    "t": "*Các số liệu tương quan chỉ mang tính tham khảo. Chi phí rủi ro tính theo Kelly xác suất (γ≈1). Kết quả thực tế có thể khác."
+  },
+  "portfolio.calculator.exposureAria": {
+    "en": "{name} exposure",
+    "t": "mức phân bổ {name}"
+  },
+  "portfolio.calculator.eyebrow": {
+    "en": "Risk Terminal",
+    "t": "Bảng rủi ro"
+  },
+  "portfolio.calculator.factorExposures": {
+    "en": "Factor Exposures",
+    "t": "Phân bổ theo yếu tố"
+  },
+  "portfolio.calculator.hint": {
+    "en": "drag bars · type · ↑↓",
+    "t": "kéo thanh · nhập · ↑↓"
+  },
+  "portfolio.calculator.hostYoy": {
+    "en": "Host YoY return",
+    "t": "Lợi suất danh mục theo năm"
+  },
+  "portfolio.calculator.hostYoyHint": {
+    "en": "your book's current return — not a factor weight",
+    "t": "lợi suất hiện tại của danh mục — không phải trọng số yếu tố"
+  },
+  "portfolio.calculator.swapLabel": {
+    "en": "Allocation swapped into Vietnam",
+    "t": "Tỷ trọng chuyển sang Việt Nam"
+  },
+  "portfolio.calculator.title": {
+    "en": "Correlation Profile",
+    "t": "Hồ sơ tương quan"
+  },
+  "portfolio.featured.badge": {
+    "en": "Featured Deal",
+    "t": "Dự án nổi bật"
+  },
+  "portfolio.featured.q1.blurb": {
+    "en": "Landmark twin-tower beachfront residences rising over Quy Nhơn's crescent bay — a lighthouse-inspired icon pairing five-star resort amenities with panoramic East Sea views.",
+    "t": "Khu căn hộ biểu tượng gồm hai tháp đôi bên vịnh trăng khuyết Quy Nhơn — công trình lấy cảm hứng từ ngọn hải đăng, kết hợp tiện ích nghỉ dưỡng năm sao với tầm nhìn toàn cảnh Biển Đông."
+  },
+  "portfolio.featured.q1.location": {
+    "en": "Quy Nhơn Beachfront",
+    "t": "Mặt biển Quy Nhơn"
+  },
+  "portfolio.featured.q1.name": {
+    "en": "Q1 Tower Quy Nhơn",
+    "t": "Q1 Tower Quy Nhơn"
+  },
+  "portfolio.heading.accent": {
+    "en": "Portfolio",
+    "t": "tài sản cao cấp"
+  },
+  "portfolio.heading.lead": {
+    "en": "Premium Asset",
+    "t": "Danh mục"
+  },
+  "portfolio.intro": {
+    "en": "Curated, premium, high-yield developments across Quy Nhon city, focusing on high appreciation seaside villas and urban luxury residences.",
+    "t": "Các dự án cao cấp, lợi suất cao được tuyển chọn tại thành phố Quy Nhơn, tập trung vào biệt thự ven biển giàu tiềm năng tăng giá và căn hộ hạng sang trong đô thị."
+  },
+  "portfolio.scope": {
+    "en": "Investment Scope",
+    "t": "Phạm vi đầu tư"
+  },
+  "portfolio.side.cta": {
+    "en": "View Property",
+    "t": "Xem dự án"
+  },
+  "portfolio.side.tms.avgApartment": {
+    "en": "Avg. Apartment",
+    "t": "Căn hộ trung bình"
+  },
+  "portfolio.side.tms.blurb": {
+    "en": "Quy Nhơn's tallest landmark — a 42-floor beachfront tower pairing five-star Grand Hyams hotel service with branded condotel residences steps from the city beach.",
+    "t": "Công trình cao nhất Quy Nhơn — tháp 42 tầng bên biển, kết hợp dịch vụ khách sạn năm sao Grand Hyams với căn hộ condotel thương hiệu chỉ cách bãi biển thành phố vài bước chân."
+  },
+  "portfolio.side.tms.location": {
+    "en": "28 Nguyễn Huệ, Quy Nhơn",
+    "t": "28 Nguyễn Huệ, Quy Nhơn"
+  },
+  "portfolio.side.tms.name": {
+    "en": "TMS Luxury Hotel & Residence",
+    "t": "TMS Luxury Hotel & Residence"
+  },
+  "portfolio.stat.appreciation": {
+    "en": "Appreciation",
+    "t": "Tăng giá"
+  },
+  "portfolio.stat.status": {
+    "en": "Status",
+    "t": "Trạng thái"
+  },
+  "portfolio.stat.targetYield": {
+    "en": "Target Yield",
+    "t": "Lợi suất mục tiêu"
+  },
+  "portfolio.why.badge": {
+    "en": "Market Growth",
+    "t": "Tăng trưởng thị trường"
+  },
+  "portfolio.why.blurb": {
+    "en": "Positioned as the new gateway of Central Vietnam, Quy Nhon is undergoing a multi-billion dollar infrastructure upgrade, transforming into a global science and beach tourism destination.",
+    "t": "Được định vị là cửa ngõ mới của miền Trung Việt Nam, Quy Nhơn đang được nâng cấp hạ tầng hàng tỷ đô la, trở thành điểm đến khoa học và du lịch biển tầm quốc tế."
+  },
+  "portfolio.why.fdi": {
+    "en": "FDI Inflow (2025):",
+    "t": "Vốn FDI (2025):"
+  },
+  "portfolio.why.infrastructure": {
+    "en": "Infrastructure Investment:",
+    "t": "Đầu tư hạ tầng:"
+  },
+  "portfolio.why.infrastructureValue": {
+    "en": "$2.4 Billion",
+    "t": "2,4 tỷ USD"
+  },
+  "portfolio.why.title": {
+    "en": "Why Quy Nhon?",
+    "t": "Vì sao chọn Quy Nhơn?"
+  },
+  "portfolio.why.tourism": {
+    "en": "Tourism Growth Rate:",
+    "t": "Tốc độ tăng trưởng du lịch:"
+  }
+}

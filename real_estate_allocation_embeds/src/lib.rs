@@ -3,10 +3,17 @@
 //! Marketing surface and cross-origin microfrontend bundle. The wasm container for the
 //! landing "Premium Asset Portfolio" bento section — no app shell, so the landing host
 //! composes `<tag>` directly into its page. All presentation lives in `view` (native-
-//! compilable, so the same components render the static `portfolio.html` snapshot); this
+//! compilable, so the same components render the static `portfolio.<locale>.html` snapshots); this
 //! file is only the wasm-only shell: the custom-element registration (`ev_lib::mfe!`),
 //! the live data fetch, and the asset-origin derivation.
+//!
+//! The locale is not among the wasm-only inputs, and deliberately so: `mfe!` reads
+//! it off the host page's `lang` (`ev_lib::mfe::host_locale`) and provides the
+//! `Translator` above `view`. An attribute could not carry it — the conductor's
+//! `RemoteElement` appends the element in one effect and sets its attributes in a
+//! later one, so anything pushed in is absent at `connectedCallback` time.
 
+mod messages;
 mod view;
 
 use dioxus::prelude::*;
@@ -19,7 +26,8 @@ use view::{AssetOrigin, Featured, Overview, Q1_PROPERTY};
 // (emitted by the build as `mfe.json`).
 ev_lib::mfe! {
 	service: "real-estate", name: "overview", kind: component,
-	root: crate::OverviewContainer, stylesheet: "mfe.css"
+	root: crate::OverviewContainer, stylesheet: "mfe.css",
+	messages: crate::messages::catalogue
 }
 
 /// wasm shell around `view::Overview`: fetches Q1's live figures, provides the asset

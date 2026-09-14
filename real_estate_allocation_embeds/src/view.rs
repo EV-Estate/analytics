@@ -1,13 +1,21 @@
 //! Presentation layer for the Portfolio embed — native-compilable so the same
 //! components render both the live wasm bundle and the static HTML snapshot
-//! (`examples/portfolio_snapshot.rs`, baked by the flake as `portfolio.html`).
-//! The two wasm-only inputs are injected: asset origin via `AssetOrigin` context
-//! (wasm → `bundle_origin()`, SSR → `""`), and the featured building via a prop.
+//! (`examples/portfolio_snapshot.rs`, baked by the flake as
+//! `portfolio.<locale>.html`). The two wasm-only inputs are injected: asset
+//! origin via `AssetOrigin` context (wasm → `bundle_origin()`, SSR → `""`), and
+//! the featured building via a prop.
+//!
+//! Copy is `t!(tr, key, "English")` — English written where it renders, with
+//! `messages/en/common.json` generated back out of these very sites. The
+//! `Translator` arrives as context: from `mfe!` (which resolves the host page's
+//! `lang`) in the bundle, and from the locale argument in the snapshot. The
+//! `MISSING` / `"ERR"` placeholders stay untranslated — they are data-fault
+//! markers, not copy.
 
 use dioxus::prelude::*;
 #[cfg(target_arch = "wasm32")]
 use dioxus::web::WebEventExt;
-use ev_lib::uikit::Container;
+use ev_lib::{i18n::Translator, t, uikit::Container};
 use real_estate_allocation_core::{MISSING, domain::Building, factors::profile};
 
 // Banners are static assets served alongside the bundle; they resolve against the
@@ -77,6 +85,7 @@ pub fn featured_stats(building: &Featured) -> (String, String, String) {
 
 #[component]
 pub fn Overview(building: Featured) -> Element {
+	let tr = use_context::<Translator>();
 	rsx! {
 		section { id: "portfolio", class: "relative border-t border-ink/10 py-24",
 			Container {
@@ -87,15 +96,25 @@ pub fn Overview(building: Featured) -> Element {
 				div { class: "mb-16 flex max-md:flex-col justify-between md:items-end",
 					div {
 						span { class: "mb-3 block font-mono text-xs uppercase tracking-[0.3em] text-accent-debug",
-							"Investment Scope"
+							{t!(tr, "portfolio.scope", "Investment Scope")}
 						}
+						// Two slots, not one sentence split by word order: the second is
+						// the italic accent, and a locale distributes the headline's words
+						// between them however its grammar needs.
 						h2 { class: "font-serif text-3xl font-light text-white sm:text-5xl",
-							"Premium Asset "
-							span { class: "font-serif italic text-accent-debug", "Portfolio" }
+							{t!(tr, "portfolio.heading.lead", "Premium Asset")}
+							" "
+							span { class: "font-serif italic text-accent-debug",
+								{t!(tr, "portfolio.heading.accent", "Portfolio")}
+							}
 						}
 					}
 					p { class: "mt-4 max-w-md font-light text-sm text-ink/70 md:mt-0",
-						"Curated, premium, high-yield developments across Quy Nhon city, focusing on high appreciation seaside villas and urban luxury residences."
+						{t!(
+							tr,
+							"portfolio.intro",
+							"Curated, premium, high-yield developments across Quy Nhon city, focusing on high appreciation seaside villas and urban luxury residences."
+						)}
 					}
 				}
 
@@ -117,6 +136,7 @@ pub fn Overview(building: Featured) -> Element {
 fn FeaturedCard(building: Featured) -> Element {
 	let (target_yield, appreciation, status) = featured_stats(&building);
 	let origin = use_context::<AssetOrigin>().0;
+	let tr = use_context::<Translator>();
 
 	rsx! {
 		a {
@@ -131,21 +151,28 @@ fn FeaturedCard(building: Featured) -> Element {
 				style: "background-image: linear-gradient(to top, rgba(7,13,24,0.96) 10%, rgba(7,13,24,0.2)), url({origin}/mfe/{Q1_BANNER}?v={ASSET_V})",
 			}
 			div { class: "absolute right-4 top-4 bg-accent-debug px-3 py-1.5 font-mono text-[0.625rem] font-bold uppercase tracking-widest text-background",
-				"Featured Deal"
+				{t!(tr, "portfolio.featured.badge", "Featured Deal")}
 			}
 			div { class: "relative z-10 p-8",
 				div { class: "mb-3 flex items-center gap-2 font-mono text-xs text-accent-debug",
 					IconPin {}
-					"Quy Nhơn Beachfront" // TODO: exact street address not in `place.json`
+					// TODO: exact street address not in `place.json`
+					{t!(tr, "portfolio.featured.q1.location", "Quy Nhơn Beachfront")}
 				}
-				h3 { class: "mb-4 font-serif text-2xl text-white sm:text-3xl", "Q1 Tower Quy Nhơn" }
+				h3 { class: "mb-4 font-serif text-2xl text-white sm:text-3xl",
+					{t!(tr, "portfolio.featured.q1.name", "Q1 Tower Quy Nhơn")}
+				}
 				p { class: "mb-6 max-w-xl font-light text-sm text-ink/70",
-					"Landmark twin-tower beachfront residences rising over Quy Nhơn's crescent bay — a lighthouse-inspired icon pairing five-star resort amenities with panoramic East Sea views."
+					{t!(
+						tr,
+						"portfolio.featured.q1.blurb",
+						"Landmark twin-tower beachfront residences rising over Quy Nhơn's crescent bay — a lighthouse-inspired icon pairing five-star resort amenities with panoramic East Sea views."
+					)}
 				}
 				div { class: "grid max-w-md grid-cols-3 gap-4 border-t border-ink/10 pt-6",
-					Stat { label: "Target Yield", value_class: "text-positive", "{target_yield}" }
-					Stat { label: "Appreciation", value_class: "text-accent-warn", "{appreciation}" }
-					Stat { label: "Status", value_class: "text-white", "{status}" }
+					Stat { label: t!(tr, "portfolio.stat.targetYield", "Target Yield"), value_class: "text-positive", "{target_yield}" }
+					Stat { label: t!(tr, "portfolio.stat.appreciation", "Appreciation"), value_class: "text-accent-warn", "{appreciation}" }
+					Stat { label: t!(tr, "portfolio.stat.status", "Status"), value_class: "text-white", "{status}" }
 				}
 			}
 		}
@@ -156,6 +183,7 @@ fn FeaturedCard(building: Featured) -> Element {
 #[component]
 fn SideCard() -> Element {
 	let origin = use_context::<AssetOrigin>().0;
+	let tr = use_context::<Translator>();
 	rsx! {
 		a {
 			href: "/rea/?building={TMS_PROPERTY}",
@@ -167,19 +195,27 @@ fn SideCard() -> Element {
 			div { class: "relative z-10 p-8",
 				div { class: "mb-3 flex items-center gap-2 font-mono text-xs text-accent-debug",
 					IconPin {}
-					"28 Nguyễn Huệ, Quy Nhơn"
+					{t!(tr, "portfolio.side.tms.location", "28 Nguyễn Huệ, Quy Nhơn")}
 				}
-				h3 { class: "mb-4 font-serif text-xl text-white sm:text-2xl", "TMS Luxury Hotel & Residence" }
+				h3 { class: "mb-4 font-serif text-xl text-white sm:text-2xl",
+					{t!(tr, "portfolio.side.tms.name", "TMS Luxury Hotel & Residence")}
+				}
 				p { class: "mb-6 font-light text-sm text-ink/70",
-					"Quy Nhơn's tallest landmark — a 42-floor beachfront tower pairing five-star Grand Hyams hotel service with branded condotel residences steps from the city beach."
+					{t!(
+						tr,
+						"portfolio.side.tms.blurb",
+						"Quy Nhơn's tallest landmark — a 42-floor beachfront tower pairing five-star Grand Hyams hotel service with branded condotel residences steps from the city beach."
+					)}
 				}
 				div { class: "flex items-center justify-between border-t border-ink/10 pt-6",
 					div {
-						span { class: "mb-0.5 block font-mono text-[0.5625rem] uppercase text-ink/40", "Avg. Apartment" }
+						span { class: "mb-0.5 block font-mono text-[0.5625rem] uppercase text-ink/40",
+							{t!(tr, "portfolio.side.tms.avgApartment", "Avg. Apartment")}
+						}
 						span { class: "text-sm font-serif font-bold text-white", "$76,000" }
 					}
 					span { class: "flex items-center font-mono text-xs tracking-wider text-accent-debug transition-colors group-hover:text-white",
-						"View Property"
+						{t!(tr, "portfolio.side.cta", "View Property")}
 						IconArrow {}
 					}
 				}
@@ -191,22 +227,31 @@ fn SideCard() -> Element {
 /// Static market-context tile (no deep-link).
 #[component]
 fn WhyCard() -> Element {
+	let tr = use_context::<Translator>();
 	rsx! {
 		div { class: "flex flex-col justify-between border border-ink/10 bg-card p-8",
 			div {
 				div { class: "mb-6 inline-flex items-center gap-1.5 border border-accent-debug/20 bg-accent-debug/10 px-2 py-1 font-mono text-[0.5625rem] uppercase tracking-wider text-accent-debug",
 					IconTrend {}
-					"Market Growth"
+					{t!(tr, "portfolio.why.badge", "Market Growth")}
 				}
-				h3 { class: "mb-4 font-serif text-xl text-white sm:text-2xl", "Why Quy Nhon?" }
+				h3 { class: "mb-4 font-serif text-xl text-white sm:text-2xl",
+					{t!(tr, "portfolio.why.title", "Why Quy Nhon?")}
+				}
 				p { class: "mb-6 font-light text-sm text-ink/70",
-					"Positioned as the new gateway of Central Vietnam, Quy Nhon is undergoing a multi-billion dollar infrastructure upgrade, transforming into a global science and beach tourism destination."
+					{t!(
+						tr,
+						"portfolio.why.blurb",
+						"Positioned as the new gateway of Central Vietnam, Quy Nhon is undergoing a multi-billion dollar infrastructure upgrade, transforming into a global science and beach tourism destination."
+					)}
 				}
 			}
 			ul { class: "space-y-3 border-t border-ink/10 pt-6 font-mono text-xs",
-				Row { label: "Infrastructure Investment:", value_class: "text-white", "$2.4 Billion" }
-				Row { label: "Tourism Growth Rate:", value_class: "text-positive", "+28% YoY" }
-				Row { label: "FDI Inflow (2025):", value_class: "text-positive", "$420M" }
+				Row { label: t!(tr, "portfolio.why.infrastructure", "Infrastructure Investment:"), value_class: "text-white",
+					{t!(tr, "portfolio.why.infrastructureValue", "$2.4 Billion")}
+				}
+				Row { label: t!(tr, "portfolio.why.tourism", "Tourism Growth Rate:"), value_class: "text-positive", "+28% YoY" }
+				Row { label: t!(tr, "portfolio.why.fdi", "FDI Inflow (2025):"), value_class: "text-positive", "$420M" }
 			}
 		}
 	}
@@ -231,6 +276,7 @@ fn snap(v: f64) -> f64 {
 /// exposure drawn as a draggable bar, so the book's composition reads at a glance.
 #[component]
 fn Calculator() -> Element {
+	let tr = use_context::<Translator>();
 	let p = profile();
 	// One exposure signal per factor + the host's current YoY return, all in percent.
 	// ponytail: factor count is fixed (`profile()` is constant), so these per-factor
@@ -259,15 +305,25 @@ fn Calculator() -> Element {
 			div { class: "grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_20rem]",
 				div { class: "flex flex-col gap-5",
 					div { class: "flex flex-col gap-2",
-						span { class: "font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-accent-debug", "Risk Terminal" }
-						h3 { class: "font-serif text-[1.375rem] text-white", "Correlation Profile" }
+						span { class: "font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-accent-debug",
+							{t!(tr, "portfolio.calculator.eyebrow", "Risk Terminal")}
+						}
+						h3 { class: "font-serif text-[1.375rem] text-white",
+							{t!(tr, "portfolio.calculator.title", "Correlation Profile")}
+						}
 						p { class: "font-light text-[0.8125rem] leading-relaxed text-ink/70",
-							"We are judged on our marginal effect on your book — accretive because we are nearly uncorrelated with the alpha factors you already own."
+							{t!(
+								tr,
+								"portfolio.calculator.blurb",
+								"We are judged on our marginal effect on your book — accretive because we are nearly uncorrelated with the alpha factors you already own."
+							)}
 						}
 					}
 					div { class: "mt-auto flex flex-col gap-2 font-mono",
 						div { class: "flex items-center justify-between",
-							label { class: "text-[0.625rem] uppercase tracking-wider text-ink/40", "Allocation swapped into Vietnam" }
+							label { class: "text-[0.625rem] uppercase tracking-wider text-ink/40",
+								{t!(tr, "portfolio.calculator.swapLabel", "Allocation swapped into Vietnam")}
+							}
 							span { class: "text-[0.8125rem] font-bold text-accent-debug", "{swap():.0}%" }
 						}
 						span {
@@ -340,12 +396,16 @@ fn Calculator() -> Element {
 
 				// Output panel
 				div { class: "flex flex-col gap-3 border border-ink/10 bg-secondary p-5",
-					span { class: "font-mono text-[0.625rem] uppercase tracking-wider text-ink/40", "Δ Effective Risk Premia" }
+					span { class: "font-mono text-[0.625rem] uppercase tracking-wider text-ink/40",
+							{t!(tr, "portfolio.calculator.deltaRiskPremia", "Δ Effective Risk Premia")}
+						}
 					span { class: "font-serif text-3xl font-bold text-accent-warn", "{out.delta_risk_premia * 10_000.0:+.1} bps" }
 					div { class: "border-t border-ink/10" }
 					div { class: "flex gap-7 font-mono",
 						div { class: "flex flex-col gap-1",
-							span { class: "text-[0.625rem] uppercase tracking-wider text-ink/40", "Δ Expected Perf" }
+							span { class: "text-[0.625rem] uppercase tracking-wider text-ink/40",
+								{t!(tr, "portfolio.calculator.deltaPerf", "Δ Expected Perf")}
+							}
 							span { class: "text-[0.8125rem] font-bold text-positive", "{out.delta_performance * 100.0:+.2}%" }
 						}
 						div { class: "flex flex-col gap-1",
@@ -354,7 +414,11 @@ fn Calculator() -> Element {
 						}
 					}
 					p { class: "mt-auto font-light text-[0.625rem] leading-snug text-ink/30",
-						"*Correlation figures indicative placeholders. Risk cost under probabilistic-Kelly (γ≈1). Actual results may vary."
+						{t!(
+							tr,
+							"portfolio.calculator.disclaimer",
+							"*Correlation figures indicative placeholders. Risk cost under probabilistic-Kelly (γ≈1). Actual results may vary."
+						)}
 					}
 				}
 			}
@@ -362,14 +426,18 @@ fn Calculator() -> Element {
 			// Factor mixer — one row per factor: label · ρ · draggable exposure bar · stepper.
 			div { class: "flex flex-col gap-3 font-mono",
 				div { class: "flex items-center justify-between",
-					span { class: "text-[0.625rem] font-semibold uppercase tracking-[0.15em] text-ink/40", "Factor Exposures" }
+					span { class: "text-[0.625rem] font-semibold uppercase tracking-[0.15em] text-ink/40",
+							{t!(tr, "portfolio.calculator.factorExposures", "Factor Exposures")}
+						}
 					div { class: "flex items-center gap-2",
 						span {
 							class: if balanced { "text-[0.5625rem] uppercase tracking-wider text-ink/55" } else { "rounded border border-accent-warn/50 bg-accent-warn/10 px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wider text-accent-warn" },
 							title: "{off_by:+.0}% vs 100%",
 							"Σ {total:.0}%"
 						}
-						span { class: "text-[0.5625rem] uppercase tracking-wider text-ink/30", "drag bars · type · ↑↓" }
+						span { class: "text-[0.5625rem] uppercase tracking-wider text-ink/30",
+								{t!(tr, "portfolio.calculator.hint", "drag bars · type · ↑↓")}
+							}
 					}
 				}
 				div { class: "flex flex-col gap-2",
@@ -381,9 +449,11 @@ fn Calculator() -> Element {
 				// Host book input — teal-marked: it's the user's own number, not a factor weight.
 				div { class: "flex items-center gap-3",
 					span { class: "h-3.5 w-[3px] shrink-0 rounded-sm bg-accent-debug" }
-					span { class: "flex-1 text-[0.625rem] uppercase tracking-wide text-ink/70 sm:flex-none", "Host YoY return" }
+					span { class: "flex-1 text-[0.625rem] uppercase tracking-wide text-ink/70 sm:flex-none",
+						{t!(tr, "portfolio.calculator.hostYoy", "Host YoY return")}
+					}
 					span { class: "hidden text-[0.5625rem] uppercase tracking-wider text-ink/30 sm:block sm:flex-1",
-						"your book's current return — not a factor weight"
+						{t!(tr, "portfolio.calculator.hostYoyHint", "your book's current return — not a factor weight")}
 					}
 					ValueStepper { value: yoy, step: 0.5, big_step: 10.0, min: -50.0, max: 100.0, suffix: "%", accent: true }
 				}
@@ -398,6 +468,7 @@ fn Calculator() -> Element {
 /// bar wraps to its own line below the label/ρ/stepper meta line.
 #[component]
 fn FactorRow(label: &'static str, rho: f64, value: Signal<f64>) -> Element {
+	let tr = use_context::<Translator>();
 	let mut value = value;
 	let mut track = use_signal(|| Option::<std::rc::Rc<MountedData>>::None);
 	let mut bounds = use_signal(|| (0.0_f64, 1.0_f64));
@@ -415,7 +486,7 @@ fn FactorRow(label: &'static str, rho: f64, value: Signal<f64>) -> Element {
 				class: "relative max-md:order-last max-md:col-span-full flex h-4 cursor-ew-resize touch-none select-none items-center",
 				role: "slider",
 				tabindex: "0",
-				"aria-label": "{label} exposure",
+				"aria-label": t!(tr, "portfolio.calculator.exposureAria", "{name} exposure", name = label),
 				"aria-valuenow": value(),
 				"aria-valuemin": EXPO_MIN,
 				"aria-valuemax": EXPO_MAX,

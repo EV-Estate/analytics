@@ -33,8 +33,11 @@ web-sys = { workspace = true, features = ["Window", "Document", "Element", "Even
 # crate, not the full REA lib.
 [dependencies]
 dioxus.workspace = true
-ev_lib = { workspace = true, features = ["architecture", "uikit"] }
+ev_lib = { workspace = true, features = ["architecture", "i18n", "uikit"] }
 real_estate_allocation_core.workspace = true
+# Parses the five `messages/<locale>/common.json` catalogues. Free in the wasm
+# bundle — `gloo-net`'s json feature already links it for the live fetch.
+serde_json.workspace = true
 
 # `examples/portfolio_snapshot.rs` renders `view` to static HTML natively — dev-only, so
 # the wasm cdylib never links it.

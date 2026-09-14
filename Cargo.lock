@@ -1953,13 +1953,14 @@ dependencies = [
 
 [[package]]
 name = "ev_lib"
-version = "0.11.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cd0658b73c874c501c1459a840b66339acec548f856799e5e10010a6aa7786c"
+checksum = "8db4cc3cf485bd83ac8e6eb7a31263e5e232f7d9814e82002f6feb08746dded4"
 dependencies = [
  "async-trait",
  "dioxus",
- "ev_lib_classes",
+ "ev_lib_classes 0.5.0",
+ "inventory",
  "jiff",
  "js-sys",
  "opentelemetry",
@@ -1984,6 +1985,16 @@ name = "ev_lib_classes"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85d82486391ae7cd6d7c257c979e83a837768a8dff915f69dd9b27464ec7aca5"
+dependencies = [
+ "strum",
+ "tailwind_fuse",
+]
+
+[[package]]
+name = "ev_lib_classes"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f25301c8d6cacfa727412fa93a3f13169a0491b3820fd8ffed5a15947a3bf7b6"
 dependencies = [
  "strum",
  "tailwind_fuse",
@@ -4171,7 +4182,7 @@ dependencies = [
 name = "real_estate_allocation_assets"
 version = "0.1.0"
 dependencies = [
- "ev_lib_classes",
+ "ev_lib_classes 0.4.1",
 ]
 
 [[package]]
@@ -4198,6 +4209,7 @@ dependencies = [
  "getrandom 0.4.3",
  "gloo-net 0.7.0",
  "real_estate_allocation_core",
+ "serde_json",
  "uuid",
  "wasm-bindgen",
  "web-sys",
