@@ -157,7 +157,7 @@
                     - type: s3
                       endpoint: https://1dbedc392b294bdef442b64e9030ba96.r2.cloudflarestorage.com
                       bucket: ev-invest-state
-                      path: litestream/apps/real-estate-allocation-data/app.db
+                      path: litestream/ev-estate/analytics-data/app.db
             '';
           in
           pkgs.writeShellApplication {
