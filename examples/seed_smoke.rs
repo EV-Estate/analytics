@@ -1,6 +1,6 @@
 //! Throwaway: seed a temp DB and assert each building round-trips from its stored
 //! document with its lots + bundled pics intact.
-use real_estate_allocation::store::{BuildingRepository, SqliteStore, seed};
+use analytics::store::{BuildingRepository, SqliteStore, seed};
 
 #[tokio::main]
 async fn main() {

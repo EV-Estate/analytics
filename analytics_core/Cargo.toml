@@ -1,0 +1,21 @@
+[package]
+name = "analytics_core"
+version.workspace = true
+edition = "2024"
+
+# Pure domain layer: `domain` + `factors` + `error`, with zero dioxus and zero
+# miette. Shared by the native dashboard/server (via the analytics lib re-export) and the
+# light wasm embed bundle (`analytics_embeds`), which must not pull the
+# whole dashboard lib.
+[dependencies]
+ev_lib = { workspace = true, features = ["architecture", "i18n"] }
+jiff.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+strum = { workspace = true, features = ["strum_macros", "derive"] }
+thiserror.workspace = true
+uuid.workspace = true
+v_utils = { workspace = true, features = ["trades"] }
+
+[lints]
+workspace = true

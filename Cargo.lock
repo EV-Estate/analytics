@@ -46,6 +46,83 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
+name = "analytics"
+version = "0.4.0"
+dependencies = [
+ "analytics_core",
+ "async-trait",
+ "clap",
+ "color-eyre",
+ "derive-new",
+ "dioxus",
+ "dioxus-fullstack",
+ "dioxus-ssr",
+ "ev_lib",
+ "getrandom 0.3.4",
+ "getrandom 0.4.3",
+ "gloo-timers",
+ "insta",
+ "jiff",
+ "miette",
+ "reqwest 0.13.4",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "smart-default",
+ "sqlx",
+ "strum",
+ "thiserror 2.0.18",
+ "tilers",
+ "tokio",
+ "tower-http",
+ "tracing-subscriber",
+ "uuid",
+ "v_utils",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "analytics_core"
+version = "0.4.0"
+dependencies = [
+ "ev_lib",
+ "jiff",
+ "serde",
+ "serde_json",
+ "strum",
+ "thiserror 2.0.18",
+ "uuid",
+ "v_utils",
+]
+
+[[package]]
+name = "analytics_dashboard"
+version = "0.4.0"
+dependencies = [
+ "analytics",
+ "dioxus",
+ "dioxus-fullstack",
+ "ev_lib",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "analytics_embeds"
+version = "0.4.0"
+dependencies = [
+ "analytics_core",
+ "dioxus",
+ "ev_lib",
+ "getrandom 0.3.4",
+ "getrandom 0.4.3",
+ "gloo-net 0.7.0",
+ "uuid",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "android_system_properties"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4094,89 +4171,6 @@ name = "raw-window-handle"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
-
-[[package]]
-name = "real_estate_allocation"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "clap",
- "color-eyre",
- "derive-new",
- "dioxus",
- "dioxus-fullstack",
- "dioxus-ssr",
- "ev_lib",
- "getrandom 0.3.4",
- "getrandom 0.4.3",
- "gloo-timers",
- "insta",
- "jiff",
- "miette",
- "real_estate_allocation_core",
- "real_estate_allocation_macros",
- "reqwest 0.13.4",
- "secrecy",
- "serde",
- "serde_json",
- "smart-default",
- "sqlx",
- "strum",
- "thiserror 2.0.18",
- "tilers",
- "tokio",
- "tower-http",
- "tracing-subscriber",
- "uuid",
- "v_utils",
- "wasm-bindgen",
-]
-
-[[package]]
-name = "real_estate_allocation_core"
-version = "0.1.0"
-dependencies = [
- "ev_lib",
- "jiff",
- "serde",
- "serde_json",
- "strum",
- "thiserror 2.0.18",
- "uuid",
- "v_utils",
-]
-
-[[package]]
-name = "real_estate_allocation_data"
-version = "0.1.0"
-dependencies = [
- "dioxus",
- "dioxus-fullstack",
- "ev_lib",
- "real_estate_allocation",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "real_estate_allocation_embeds"
-version = "0.1.0"
-dependencies = [
- "dioxus",
- "dioxus-ssr",
- "ev_lib",
- "getrandom 0.3.4",
- "getrandom 0.4.3",
- "gloo-net 0.7.0",
- "real_estate_allocation_core",
- "uuid",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "real_estate_allocation_macros"
-version = "0.1.0"
 
 [[package]]
 name = "redox_syscall"

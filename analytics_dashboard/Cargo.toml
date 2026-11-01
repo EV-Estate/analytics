@@ -1,0 +1,21 @@
+[package]
+name = "analytics_dashboard"
+version.workspace = true
+edition = "2024"
+
+# The dashboard as a `kind: page` microfrontend: `<mfe-analytics-dashboard>`, served by
+# the analytics server under `/mfe/analytics/` and mounted by the estate host at `/analytics`. Built with
+# `wasm-bindgen --target web` (manganis-free, see `ev_lib::mfe`), like the embeds.
+[lib]
+crate-type = ["cdylib"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+analytics.workspace = true
+dioxus = { workspace = true, features = ["web"] }
+dioxus-fullstack = { workspace = true, features = ["web"] }
+ev_lib = { workspace = true, features = ["wasm", "mfe"] }
+wasm-bindgen.workspace = true
+web-sys = { workspace = true, features = ["Element"] }
+
+[lints]
+workspace = true

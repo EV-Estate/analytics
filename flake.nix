@@ -16,7 +16,7 @@
         # Canonical toolchain pinned in v_flakes — byte-identical across repos, so
         # the nix store dedups it and sccache cross-references compilations.
         rust = v_flakes.rs.default_nightly system;
-        # `buildRustPackage` derivations (reaBin/embeds/mfeData) use this one —
+        # `buildRustPackage` derivations (bin/mfe) use this one —
         # the dev toolchain isn't meant for hermetic package builds.
         build_rust = v_flakes.rs.build_nightly system;
         # rust-lld (the wasm32 linker) embeds a bad rpath on macOS — it looks for
@@ -41,21 +41,13 @@
             };
           };
         });
-        manifest = (pkgs.lib.importTOML ./real_estate_allocation/Cargo.toml).package;
-        pname = manifest.name;
-        # mold is Linux-only (the adapter *throws* on Darwin at eval time, which
-        # used to break even `nix build .#embeds` on macOS dev machines).
+        pname = (pkgs.lib.importTOML ./analytics/Cargo.toml).package.name;
+        version = (pkgs.lib.importTOML ./Cargo.toml).workspace.package.version;
+        # mold is Linux-only (the adapter *throws* on Darwin at eval time).
         stdenv = if pkgs.stdenv.isDarwin then pkgs.stdenv else pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;
 
-        # REA's own dev/prod serving port. Single source for the healthcheck, the
-        # container's exposed port, and the devShell `REA_PORT` env below.
-        reaPort = "59079";
-
-        # `nix run .#dev-embeds` static-server port. Numbered in REA's own range
-        # (reaPort+2), NOT any embedder's — the embed bundle is host-agnostic (it
-        # reads its backend from `<meta rea-url>`, assets from `bundle_origin()`).
-        # This is purely which local port the dev harness listens on.
-        portEmbeds = toString (pkgs.lib.toInt reaPort + 2);
+        # dev/prod serving port (deploy/config.nix binds the same in prod).
+        port = "59079";
 
         # Pinned to match the workspace's `wasm-bindgen` (`=0.2.125`) — nixpkgs
         # ships a different minor, and a CLI/crate schema skew is a hard error at
@@ -83,7 +75,7 @@
           build = {
             deny = false;
             workspace = let deprecate_by = "v1.0.0"; in {
-              "./real_estate_allocation/" = [ "git_version" "log_directives" { deprecate = { by_version = deprecate_by; force = true; }; } ];
+              "./analytics/" = [ "git_version" "log_directives" { deprecate = { by_version = deprecate_by; force = true; }; } ];
             };
           };
         };
@@ -108,21 +100,25 @@
         };
         combined = v_flakes.utils.combine { inherit rust; modules = [ rs github readme ]; };
 
-        # ── page-MFE bundle steps (shared by `mfeData` and `nix run .#dev`) ──
-        # wasm-bindgen + utilities-only CSS into `$out`; the server (main.rs `Bundle`)
-        # serves it under `/mfe/data/` and hashes it into the immutable path itself.
-        mfeDataSteps = { profile, out }: ''
-          name=real_estate_allocation_data
-          wasm-bindgen --target web --no-typescript --out-dir "${out}" --out-name "$name" \
-            "target/wasm32-unknown-unknown/${profile}/$name.wasm"
-          ( cd real_estate_allocation && tailwindcss -i ./input.css -o "${out}/data.css" )
+        # ── MFE bundle steps (shared by `mfe` and `nix run .#dev`) ──────────
+        # wasm-bindgen + utilities-only CSS + the tile's seed images into `$out`; the
+        # server (main.rs `Bundle`) serves it under `/mfe/analytics/` and hashes it
+        # into the immutable path itself.
+        mfeCrates = "-p analytics_dashboard -p analytics_embeds";
+        mfeSteps = { profile, out }: ''
+          for name in analytics_dashboard analytics_embeds; do
+            wasm-bindgen --target web --no-typescript --out-dir "${out}" --out-name "$name" \
+              "target/wasm32-unknown-unknown/${profile}/$name.wasm"
+          done
+          ( cd analytics && tailwindcss -i ./dashboard.css -o "${out}/dashboard.css" && tailwindcss -i ./overview.css -o "${out}/overview.css" )
+          cp -r analytics/assets/seed "${out}/seed"
         '';
 
         # ── dev orchestrator ─────────────────────────────────────────────────
-        # `nix run .#dev` → build the page bundle (debug) into `public/` beside the
-        # debug server binary, then run the server. The dashboard is at
-        # http://127.0.0.1:${reaPort}/ (a bare dev harness; the estate host's `/data`
-        # is the real one). No hot reload: rerun after changes.
+        # `nix run .#dev` → build both MFE bundles (debug) into `public/` beside the
+        # debug server binary, then run the server. Bare dev harnesses: the tile at
+        # http://127.0.0.1:${port}/, the dashboard at /analytics (the estate host's
+        # `/analytics` is the real one). No hot reload: rerun after changes.
         #
         # IMPORTANT: resolve the repo at *runtime* via `git rev-parse`, never
         # `toString ./.` — the latter locks the wrapper to the read-only
@@ -137,54 +133,9 @@
             public="$repo/target/debug/public"
             rm -rf "$public"; mkdir -p "$public"
             nix develop "$repo" --command env RUSTFLAGS='--cfg=web_sys_unstable_apis --cfg=getrandom_backend="wasm_js"' \
-              cargo build -p real_estate_allocation_data --target wasm32-unknown-unknown
-            ${mfeDataSteps { profile = "debug"; out = "$public"; }}
-            exec nix develop "$repo" --command cargo run -p real_estate_allocation
-          '';
-        };
-
-        # `nix run .#dev-embeds` → build the MFE bundle (debug, fast) and serve it
-        # standalone on `portEmbeds` (reaPort+2) with a bare harness page that drops
-        # the self-registering `<mfe-real-estate-overview>` tag. Mirrors the `embeds`
-        # package's packaging steps minus the release/nix sandbox. The cargo+bindgen
-        # step delegates to `nix develop` for the same reason runDev/runTest do — the
-        # `.cargo/config.toml` accelerators (sccache/cranelift/mold) a bare app PATH
-        # lacks. Property cards fetch REA at `reaPort` via the injected `<meta
-        # rea-url>` (run `.#dev` alongside for live figures); the Calculator tile is
-        # self-contained. Banners resolve as `/mfe/seed/...`, so seed lands there.
-        runDevEmbeds = pkgs.writeShellApplication {
-          name = "run-dev-embeds";
-          runtimeInputs = [ pkgs.git pkgs.python3 pkgs.xdg-utils ];
-          text = ''
-            repo="$(git rev-parse --show-toplevel)"
-            cd "$repo"
-            name=real_estate_allocation_embeds
-            out="$repo/tmp/mfe-dev"
-            mkdir -p "$out/mfe"
-
-            export RUSTFLAGS='--cfg=web_sys_unstable_apis --cfg=getrandom_backend="wasm_js"'
-            nix develop "$repo" --command bash -euc "
-              cargo build -p $name --target wasm32-unknown-unknown
-              wasm-bindgen --target web --out-dir '$out' --out-name $name \
-                target/wasm32-unknown-unknown/debug/$name.wasm
-              tailwindcss -i ./real_estate_allocation/mfe.css -o '$out/mfe.css'
-            "
-            cp -rf real_estate_allocation/assets/seed "$out/mfe/seed"
-
-            printf '%s\n' \
-              '<!doctype html>' \
-              '<meta charset="utf-8" />' \
-              '<meta name="rea-url" content="http://localhost:${reaPort}" />' \
-              '<link rel="stylesheet" href="./mfe.css" />' \
-              '<body style="background:#070d18">' \
-              "<script type=\"module\">import init from \"./$name.js\"; await init();</script>" \
-              '<mfe-real-estate-overview></mfe-real-estate-overview>' \
-              > "$out/index.html"
-
-            url="http://127.0.0.1:${portEmbeds}"
-            echo "  ▶ serving embed on $url"
-            ( sleep 1 && xdg-open "$url" >/dev/null 2>&1 || true ) &
-            exec python3 -m http.server ${portEmbeds} --directory "$out"
+              cargo build ${mfeCrates} --target wasm32-unknown-unknown
+            ${mfeSteps { profile = "debug"; out = "$public"; }}
+            exec nix develop "$repo" --command cargo run -p analytics
           '';
         };
 
@@ -217,7 +168,7 @@
               : "''${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY not set}"
               export LITESTREAM_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
               export LITESTREAM_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
-              out="''${XDG_DATA_HOME:-$HOME/.local/share}/real_estate_allocation/app.db"
+              out="''${XDG_DATA_HOME:-$HOME/.local/share}/analytics/app.db"
               mkdir -p "$(dirname "$out")"
               rm -f "$out" "$out-wal" "$out-shm"
               litestream restore -config ${litestreamCfg} -o "$out" /data/app.db
@@ -246,6 +197,9 @@
         rustPlatform = pkgs.makeRustPlatform {
           inherit rustc cargo stdenv;
         };
+        # The hermetic sandbox has no `.git`, so build.rs's `GIT_HASH` is "unknown" there;
+        # `chrome::build_rev` reads this instead (server and wasm both render the label).
+        ANALYTICS_BUILD_REV = self.shortRev or self.dirtyShortRev or "";
         # `.cargo` holds dev-only accelerators (sccache rustc-wrapper, cranelift,
         # mold) the hermetic sandbox lacks — drop it so the pure build uses nix's
         # own toolchain instead of failing on a missing `sccache` on PATH.
@@ -253,9 +207,8 @@
           src = ./.;
           filter = path: _type: baseNameOf path != ".cargo";
         };
-        reaBin = rustPlatform.buildRustPackage {
-          inherit pname;
-          version = manifest.version;
+        bin = rustPlatform.buildRustPackage {
+          inherit pname version;
 
           buildInputs = with pkgs; [
             openssl.dev
@@ -266,112 +219,30 @@
           cargoLock.lockFile = ./Cargo.lock;
           src = pureSrc;
 
-          # The hermetic sandbox has no `.git`, so build.rs's `GIT_HASH` is "unknown"
-          # here; hand the flake rev in under a separate name the footer reads directly
-          # (`option_env!`), leaving the v_flakes-generated build.rs untouched.
-          REA_BUILD_REV = self.shortRev or self.dirtyShortRev or "";
+          inherit ANALYTICS_BUILD_REV;
 
-          # The server reads the page bundle from `public/` next to its own binary
+          # The server reads the MFE bundles from `public/` next to its own binary
           # (resolved through the realpath, so it must share the store path).
           # Panic-location strings bake the toolchain's std source path into the
           # binary and wasm — pure data, but nix's reference scanner would drag the
           # whole toolchain into the image. Scrub just those paths.
           postInstall = ''
-            cp -r --no-preserve=mode ${mfeData} $out/bin/public
-            remove-references-to -t ${rust} -t ${build_rust} $out/bin/real_estate_allocation
+            cp -r --no-preserve=mode ${mfe} $out/bin/public
+            remove-references-to -t ${rust} -t ${build_rust} $out/bin/analytics
             find $out/bin/public -name '*.wasm' -exec remove-references-to -t ${rust} -t ${build_rust} {} +
           '';
           doCheck = false;
         };
 
-        # ── microfrontend bundle (the `embeds` half of the split) ──────────
-        # `nix build .#embeds` → the cross-origin MFE bundle as a pure artifact
-        # the landing host bakes into its own `public/` and serves same-origin
-        # (the way it bakes the whitepaper/blog). The REA image doesn't carry it.
-        # The wasm graph is pure Rust, so it builds in the sandbox.
-        #
-        # All boilerplate (custom-element registration, start fn, manifest) is
-        # the `ev_lib::mfe!` macro; these steps are the manganis-free packaging
-        # `dx` can't do for a cross-origin remote: wasm-bindgen + utilities-only
-        # CSS + seed assets. `wasm-bindgen-cli` is pinned to the `wasm-bindgen`
-        # crate (=0.2.125); a skew is a hard schema error at bindgen time.
-        embeds = rustPlatform.buildRustPackage {
+        # ── both MFE bundles, served by the server itself (copied into bin's `public/`) ──
+        # All producer boilerplate (custom-element registration, start fn) is the
+        # `ev_lib::mfe!` macro; these steps are the manganis-free packaging `dx` can't
+        # do. `wasm-bindgen-cli` is pinned to the `wasm-bindgen` crate (=0.2.125).
+        # web_sys_unstable_apis: dioxus-web touches unstable web-sys. getrandom_backend:
+        # getrandom 0.3 (transitive via ahash) selects its wasm backend by cfg.
+        mfe = rustPlatform.buildRustPackage {
           pname = "${pname}-mfe";
-          version = manifest.version;
-          src = pureSrc;
-          cargoLock.lockFile = ./Cargo.lock;
-          nativeBuildInputs = [ wasm-bindgen-cli pkgs.tailwindcss_4 ];
-
-          # Build only the wasm crate; the default workspace build would pull the
-          # native graph. web_sys_unstable_apis: dioxus-web touches unstable
-          # web-sys (mirror the host config's native-target cfg for wasm).
-          # getrandom_backend: getrandom 0.3 (transitive via ahash) selects its
-          # wasm backend by cfg, not just a feature.
-          buildPhase = ''
-            runHook preBuild
-            ${dyldFallback}
-            export RUSTFLAGS='--cfg=web_sys_unstable_apis --cfg=getrandom_backend="wasm_js"'
-            cargo build -p real_estate_allocation_embeds --target wasm32-unknown-unknown --release --offline
-            runHook postBuild
-          '';
-          installPhase = ''
-            runHook preInstall
-            name=real_estate_allocation_embeds
-            mkdir -p "$out"
-            wasm-bindgen --target web --out-dir "$out" --out-name "$name" \
-              "target/wasm32-unknown-unknown/release/$name.wasm"
-
-            # wasm-bindgen `--target web` doesn't auto-init; this generic 2-line
-            # ESM wrapper is the bundle's registry entrypoint — importing it runs
-            # the `start` fn that registers the custom element. (printf, not a
-            # heredoc: a heredoc body/terminator would inherit nix-string indent.)
-            printf 'import init from "./%s.js";\nawait init();\n' "$name" > "$out/mfe-real-estate-overview.js"
-
-            ( cd real_estate_allocation && tailwindcss -i ./mfe.css -o "$out/mfe.css" )
-            cp -r real_estate_allocation/assets/seed "$out/seed"
-            # A git-LFS pointer ships as ~130 bytes of text and renders as a blank
-            # hero once landing serves it as image/*. Fail loud rather than silently.
-            if grep -rlq 'git-lfs.github.com/spec' "$out/seed"; then
-              echo "seed assets are unmaterialized git-LFS pointers, not images" >&2
-              exit 1
-            fi
-
-            # ponytail: mirrors `MFE_MANIFEST` (the macro's const, not readable
-            # from a build script). One remote, hand-kept; a multi-remote setup
-            # would emit it from a tiny print step into landing's registry.
-            printf '%s\n' '{"name":"real-estate.overview","tag":"mfe-real-estate-overview","kind":"component"}' > "$out/mfe.json"
-
-            # Component-MFE snapshot contract (frontend/PATTERNS.md § microfrontends):
-            # render the SAME `view` components the live bundle mounts to static HTML, so
-            # the conductor's fallback can't drift. Native host-target compile — deps are
-            # pure Rust in the vendored lock, so it stays offline/hermetic. Emptying
-            # RUSTFLAGS drops the wasm-only cfgs the buildPhase exported (the
-            # getrandom_backend=wasm_js one breaks a native build). id="portfolio" is the
-            # conductor's scroll anchor — a build-time invariant, not a runtime hope.
-            #
-            # One file per locale. The fallback shows *permanently* if the bundle never
-            # upgrades, so a single `<html lang="en">` served on /ru would not be a flash
-            # of English — it would be English forever. The conductor picks the file by
-            # page locale and asserts it at ITS build, so a locale missing here is a
-            # broken build there rather than a silent monolingual fallback.
-            for locale in en ru vi fr de; do
-              RUSTFLAGS= SNAPSHOT_CSS="$out/mfe.css" \
-                cargo run -p real_estate_allocation_embeds --example portfolio_snapshot --release --offline -- "$locale" \
-                > "$out/portfolio.$locale.html"
-              test -s "$out/portfolio.$locale.html"
-              grep -q 'id="portfolio"' "$out/portfolio.$locale.html"
-              grep -q "<html lang=\"$locale\"" "$out/portfolio.$locale.html"
-            done
-            runHook postInstall
-          '';
-          doCheck = false;
-        };
-        # ── page-MFE bundle: the dashboard as `<mfe-real-estate-data>` ─────
-        # Same manganis-free packaging as `embeds`, served by REA itself (copied
-        # into reaBin's `public/`).
-        mfeData = rustPlatform.buildRustPackage {
-          pname = "${pname}-mfe-data";
-          version = manifest.version;
+          inherit version ANALYTICS_BUILD_REV;
           src = pureSrc;
           cargoLock.lockFile = ./Cargo.lock;
           nativeBuildInputs = [ wasm-bindgen-cli pkgs.tailwindcss_4 pkgs.binaryen ];
@@ -379,27 +250,29 @@
             runHook preBuild
             ${dyldFallback}
             export RUSTFLAGS='--cfg=web_sys_unstable_apis --cfg=getrandom_backend="wasm_js"'
-            cargo build -p real_estate_allocation_data --target wasm32-unknown-unknown --release --offline
+            cargo build ${mfeCrates} --target wasm32-unknown-unknown --release --offline
             runHook postBuild
           '';
           installPhase = ''
             runHook preInstall
             mkdir -p "$out"
-            ${mfeDataSteps { profile = "release"; out = "$out"; }}
-            wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext --enable-reference-types --enable-mutable-globals --enable-multivalue \
-              "$out/real_estate_allocation_data_bg.wasm" -o "$out/real_estate_allocation_data_bg.wasm"
+            ${mfeSteps { profile = "release"; out = "$out"; }}
+            for wasm in "$out"/*_bg.wasm; do
+              wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext --enable-reference-types --enable-mutable-globals --enable-multivalue \
+                "$wasm" -o "$wasm"
+            done
             runHook postInstall
           '';
           doCheck = false;
         };
 
-        # reaBin's closure is pulled via the Entrypoint store-path ref.
+        # bin's closure is pulled via the Entrypoint store-path ref.
         # Secret-free prod config baked into the image; its `.env` fields pull the
-        # two secrets (GOOGLE_MAPS_KEY, REA_ADMIN_TOKEN) from the container env
+        # two secrets (GOOGLE_MAPS_KEY, ANALYTICS_ADMIN_TOKEN) from the container env
         # that gitops' k8s Secret injects (`envFrom`). Authored in nix and
         # evaluated to JSON here — the container has no `nix`, so the binary reads
         # the baked result, not the `.nix`. Without an explicit `--config` the
-        # binary searches only XDG dirs + the prefixed `REAL_ESTATE_ALLOCATION_*`
+        # binary searches only XDG dirs + the prefixed `ANALYTICS_*`
         # env namespace — neither sees the bare-named Secret vars nor the `/data`
         # prod paths, so it would silently boot on dev defaults (empty maps key,
         # 127.0.0.1 bind that fails the k8s probe). This is what makes it correct.
@@ -407,35 +280,31 @@
         containerStd = v_flakes.container.implement {
           inherit pkgs pname;
           containers."" = {
-            port = pkgs.lib.toInt reaPort;
+            port = pkgs.lib.toInt port;
             mounts = [ "/data" ];
             sqlite = [ "/data/app.db" ];
             healthPath = "/health";
             criticality = "normal";
-            entrypoint = [ "${reaBin}/bin/real_estate_allocation" "--config" "${prodConfig}" ];
+            entrypoint = [ "${bin}/bin/analytics" "--config" "${prodConfig}" ];
             workingDir = "/data";
             imageEnv = [ "HOME=/data" ];
           };
         };
       in
       {
-        # `nix run .#dev`         → page bundle (debug) + server, on reaPort
-        # `nix run .#dev-embeds`  → build + serve the MFE bundle standalone (reaPort+2)
+        # `nix run .#dev`         → MFE bundles (debug) + server, on port
         # `nix run .#test`        → cargo test (insta snapshots)
         # `nix run .#pull-prod-db`→ replace the local dev DB with prod's (litestream R2 restore)
         apps = {
           dev = { type = "app"; program = "${runDev}/bin/run-dev"; };
-          dev-embeds = { type = "app"; program = "${runDevEmbeds}/bin/run-dev-embeds"; };
           default = { type = "app"; program = "${runDev}/bin/run-dev"; };
           test = { type = "app"; program = "${runTest}/bin/run-test"; };
           pull-prod-db = { type = "app"; program = "${runPullProdDb}/bin/pull-prod-db"; };
         };
 
         packages = {
-          default = reaBin;
-          bin = reaBin;
-          embeds = embeds;
-          mfe-data = mfeData;
+          default = bin;
+          inherit bin mfe;
         } // containerStd.packages;
 
         containers = containerStd.containers;
@@ -467,17 +336,13 @@
               openssl
               pkg-config
               rust
-              tailwindcss_4 # standalone Tailwind v4 CLI (input.css + mfe.css)
-              wasm-bindgen-cli # manual embed builds — must match wasm-bindgen =0.2.125
+              tailwindcss_4 # standalone Tailwind v4 CLI (dashboard.css + overview.css)
+              wasm-bindgen-cli # must match wasm-bindgen =0.2.125
               litestream # manual restores/inspection; `.#pull-prod-db` wraps it
             ] ++ pre-commit-check.enabledPackages ++ combined.enabledPackages;
 
             env.RUST_BACKTRACE = 1;
             env.RUST_LIB_BACKTRACE = 0;
-            # REA's serving port (deploy/config.nix binds the same in prod).
-            env.REA_PORT = reaPort;
-            # `nix run .#dev-embeds` static-server port (reaPort+2).
-            env.PORT_EMBEDS = portEmbeds;
           };
       }
     );

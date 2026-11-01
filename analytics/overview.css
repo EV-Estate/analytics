@@ -1,0 +1,23 @@
+/* Tailwind entrypoint for the overview tile (served at
+ * `/mfe/analytics/overview.css`). Utilities-only by design: the host already ships
+ * Tailwind preflight + the brand fonts and `:root` tokens in light DOM, and the
+ * bundle mounts into that light DOM — so re-shipping preflight would double the
+ * reset and re-shipping fonts is wasteful. We import only the theme (so the brand
+ * color utilities generate) and the utilities layer, skipping preflight. Mirror
+ * of `dashboard.css` minus its `@layer base` reset.
+ *
+ * The host does NOT scan our source, so it can't generate our token/arbitrary
+ * utility classes — this bundle must, by scanning `src` below.
+ *
+ * Everything lands in the `reamfe` cascade layer instead of bare `theme`/
+ * `utilities`. The bundle injects this sheet into the host <head> in light DOM;
+ * sharing `@layer utilities` with the host would merge the two, and — loading
+ * last — our non-responsive utilities (e.g. `.grid-cols-1`) would override the
+ * host's responsive ones (e.g. `.lg:grid-cols-3`). The host registers `reamfe`
+ * as its lowest-priority layer, so scoping here keeps host styles winning while
+ * the tile stays fully styled. */
+@import "tailwindcss/theme.css" layer(reamfe);
+@import "tailwindcss/utilities.css" layer(reamfe);
+@import "./assets/tokens.css" layer(reamfe);
+
+@source "../analytics_embeds/src/**/*.rs";

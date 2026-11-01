@@ -4,7 +4,7 @@
 //! hard-errors on a missing file or an already-vanished legacy dir.
 use std::path::{Path, PathBuf};
 
-use real_estate_allocation::{
+use analytics::{
 	domain::{FileId, FileKind, PropertyFile},
 	store::{BuildingRepository, SqliteStore, import_legacy, seed},
 };

@@ -2,7 +2,7 @@
 
 A **page microfrontend** visualising the firm's property allocation: a docked
 dashboard (portfolio map, price-series chart, media/documents, deal details) for a
-selected property. A Dioxus 0.7 client (`<mfe-real-estate-data>`, CSR — no SSR, no
+selected property. A Dioxus 0.7 client (`<mfe-analytics-dashboard>`, CSR — no SSR, no
 hydration) plus an axum server with the `#[server]` functions, on top of `ev`
 (`architecture` + `uikit`) and `v_utils`.
 
@@ -70,36 +70,41 @@ not fields on `Property`.
 
 ## Embedding
 Two microfrontends, both `ev_lib::mfe!` custom elements mounted in the host's light
-DOM (never an iframe), both reading the locale off the host's `<html lang>`:
+DOM (never an iframe), both reading the locale off the host's `<html lang>`, both
+served by this server under one prefix, `/mfe/analytics/`:
 
-| element | crate | kind | served by | mounted at |
-|---|---|---|---|---|
-| `<mfe-real-estate-data>` | `real_estate_allocation_data` (this dashboard) | page | REA itself, `/mfe/data/` | estate host `/data` |
-| `<mfe-real-estate-overview>` | `real_estate_allocation_embeds` (marketing tile) | component | baked into the host's `public/mfe/` (`nix build .#embeds`) | landing / estate pages |
+| element | crate | kind | mounted at |
+|---|---|---|---|
+| `<mfe-analytics-dashboard>` | `analytics_dashboard` | page | estate host `/analytics` (same origin) |
+| `<mfe-analytics-overview>` | `analytics_embeds` (marketing tile) | component | landing / any host, cross-origin |
 
-The page bundle lives same-origin with its host: the edge routes `/mfe/data/*` and
-`/api/embed/*` on `https://estate.evinvest.ltd` to this server (`rea.evinvest.ltd`
-is gone). What the server answers (`main.rs`):
+The edge routes `https://estate.evinvest.ltd/mfe/analytics/*` here. What the server
+answers (`main.rs`):
 
 | path | what | cache |
 |---|---|---|
-| `/mfe/data/mfe-real-estate-data.js` | the stable entry the host registry points at | `no-cache` + content `ETag` |
-| `/mfe/data/data.css` | the stylesheet `mfe!` injects (`input.css`, utilities in `reamfe`) | `no-cache` + content `ETag` |
-| `/mfe/data/<rev>/*` | wasm-bindgen glue, wasm, snippets (`<rev>` = content hash at boot) | `immutable` |
-| `/mfe/data/api/*` | the `#[server]` fns (root set by the bundle from its own origin) | — |
-| `/api/embed/building/{id}` | the overview tile's plain JSON | — |
+| `/mfe/analytics/{dashboard,overview}.js` | the stable entries hosts point at | `no-cache` + content `ETag` |
+| `/mfe/analytics/{dashboard,overview}.css` | the stylesheets `mfe!` injects | `no-cache` + content `ETag` |
+| `/mfe/analytics/<rev>/*` | wasm-bindgen glue, wasm, snippets (`<rev>` = content hash at boot) | `immutable` |
+| `/mfe/analytics/seed/*` | the tile's banner images (`?v=` busted) | — |
+| `/mfe/analytics/api/*` | the `#[server]` fns (root set by the bundle from its own origin) | — |
+| `/mfe/analytics/api/embed/building/{id}` | the tile's plain JSON | — |
 | `/health` | probe | — |
+| `/api/embed/building/{id}` | legacy tile JSON for pre-0.4 bundles; to be removed | — |
 
 Invariants:
+- **Every URL a bundle emits derives from its own origin** (`bundle_origin()`, from
+  `import.meta.url`). Hosts pass nothing; CORS is `*` so cross-origin hosts can load
+  the module, the wasm and the JSON.
 - **No `dioxus/fullstack` in the wasm graph.** It forces `dioxus-web/hydrate`, and a
   host page carries no hydration data; server-fn stubs come from `dioxus-fullstack`
   directly. Nothing in the client may use `asset!` (manganis URLs are `dx`'s).
 - **The host owns the document**: fonts, tokens and preflight cascade in; our CSS is
-  utilities-only in the host's lowest layer.
+  utilities-only (the tile's in the host's lowest layer, `reamfe`).
 - **Deep links are the host URL's query** (`?building=`, `?appt=`, `?selection=`),
   read at mount and kept current with `replaceState` that preserves the host's state.
 - **Shell-free tile.** The overview renders only its section; its deep links point at
-  `<rea-url>/data?building=…`.
+  `<bundle origin>/analytics?building=…`.
 
 ## Persistence
 - SQLite via `sqlx` (`runtime-tokio`, `sqlite`). One pool, schema run on startup.
@@ -114,10 +119,9 @@ Requires `nix develop` (the `wasm32` target, `wasm-bindgen-cli` pinned to the cr
 Tailwind v4).
 
 ```sh
-nix run .#dev            # debug page bundle → target/debug/public, then the server
-                         # on :59079 (bare harness at /; estate's /data is the real host)
-nix build .#mfe-data     # the release page bundle; `.#default` = server + it in public/
-nix run .#dev-embeds     # the overview tile, standalone
+nix run .#dev            # debug bundles → target/debug/public, then the server on :59079
+                         # (bare harnesses: tile at /, dashboard at /analytics)
+nix build .#mfe          # the release bundles; `.#default` = server + them in public/
 ```
 
 Seeding runs on first launch when the DB is empty (~6 properties across all three

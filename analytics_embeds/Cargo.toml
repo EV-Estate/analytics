@@ -1,0 +1,35 @@
+[package]
+name = "analytics_embeds"
+version.workspace = true
+edition = "2024"
+
+# The overview tile: a self-registering custom element hosts load cross-origin from
+# `/mfe/analytics/`, built with `wasm-bindgen --target web` (manganis-free, see `ev_lib::mfe`).
+[lib]
+crate-type = ["cdylib"]
+
+# Native-compilable presentation layer (`src/view.rs`), so the i18n catalogue example/test
+# can link its `t!` sites. `dioxus` here is default features only (NO `web`); the wasm target
+# above adds `web`. Reaches the server over plain HTTP, so it depends on the fullstack-free
+# `core` crate, not the full analytics lib.
+[dependencies]
+analytics_core.workspace = true
+dioxus.workspace = true
+ev_lib = { workspace = true, features = ["architecture", "uikit", "i18n"] }
+
+# `src/lib.rs` is wasm-only: `dioxus/web` (no fullstack, no hydration), `ev_lib::mfe`, the `gloo-net` live fetch.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+dioxus = { workspace = true, features = ["web"] }
+ev_lib = { workspace = true, features = ["wasm", "mfe"] } # `mfe` implies `i18n`
+getrandom = { workspace = true, features = ["wasm_js"] }
+# Transitive 0.3 (ahash ← ustr ← v_utils): enable its wasm_js backend feature, the
+# same alias the main crate's wasm build uses. The backend cfg (`getrandom_backend`)
+# is set in the flake `mfeSteps` RUSTFLAGS for the bundle build.
+getrandom_03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+gloo-net.workspace = true
+uuid = { workspace = true, features = ["js"] }
+wasm-bindgen.workspace = true
+web-sys = { workspace = true, features = ["Element", "Event", "EventTarget", "MouseEvent", "PointerEvent", "UiEvent"] }
+
+[lints]
+workspace = true

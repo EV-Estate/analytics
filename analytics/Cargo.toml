@@ -1,0 +1,70 @@
+[package]
+name = "analytics"
+version.workspace = true
+edition = "2024"
+
+[features]
+# `#[server]` emits its handler half under the *consumer's* `server` feature. The
+# wasm bundle (`analytics_dashboard`) depends with default features off.
+default = ["server"]
+server = ["dioxus/server"]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+clap.workspace = true
+color-eyre.workspace = true
+dioxus = { workspace = true, features = ["fullstack", "server"] }
+ev_lib = { workspace = true, features = ["architecture", "uikit", "otel", "i18n"] }
+miette.workspace = true
+# `config` (with its SmartDefault'd AppConfig) is server-only.
+reqwest.workspace = true
+smart-default.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+# Serves the MFE bundles under `/mfe/analytics` (`fs`, `set-header`); `cors` for cross-origin hosts of the tile.
+tower-http = { version = "0.6", features = ["fs", "cors", "set-header"] }
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter", "fmt", "json"] }
+v_utils = { workspace = true, features = ["distributions", "io", "macros", "cli"] }
+
+# No `dioxus/fullstack` here: it forces `dioxus-web/hydrate`, and the custom element
+# mounts client-side into a host page that carries no SSR hydration data.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+dioxus = { workspace = true, features = ["web"] }
+dioxus-fullstack = { workspace = true, features = ["web"] }
+ev_lib = { workspace = true, features = ["architecture", "uikit", "wasm", "i18n"] }
+getrandom.workspace = true
+getrandom_03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+gloo-timers = { version = "0.3", features = ["futures"] }
+uuid = { workspace = true, features = ["js"] }
+v_utils = { version = "^2.15.53", default-features = false, features = ["trades"] }
+wasm-bindgen.workspace = true
+
+[dependencies]
+analytics_core.workspace = true
+async-trait.workspace = true
+derive-new.workspace = true
+dioxus.workspace = true
+dioxus-fullstack.workspace = true
+jiff.workspace = true
+secrecy.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+strum = { workspace = true, features = ["strum_macros", "derive"] }
+thiserror.workspace = true
+tilers.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+dioxus-ssr.workspace = true
+insta.workspace = true
+
+[[example]]
+name = "seed_smoke"
+path = "../examples/seed_smoke.rs"
+
+# Dies together with `store::import_legacy` (self-extinguishing prod bridge).
+[[example]]
+name = "legacy_import_smoke"
+path = "../examples/legacy_import_smoke.rs"
+
+[lints]
+workspace = true
