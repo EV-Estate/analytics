@@ -58,4 +58,4 @@ wasm-bindgen = "=0.2.125" #NB: don't bump carelessly, - must match installed
 web-sys = "0.3"
 
 [patch.crates-io]
-#ev_lib = { path = "../../lib/rust" }
+#ev_lib = { path = "../../web_std/rust" }
