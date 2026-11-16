@@ -27,7 +27,7 @@ ev_lib::mfe! {
 #[component]
 fn OverviewContainer() -> Element {
 	let building = use_resource(|| async move {
-		let url = format!("{}/mfe/analytics/api/embed/building/{}", bundle_origin(), Q1_PROPERTY);
+		let url = format!("{}/api/analytics/embed/building/{}", bundle_origin(), Q1_PROPERTY);
 		let b: Option<Building> = gloo_net::http::Request::get(&url).send().await.ok()?.json().await.ok()?;
 		b
 	});

@@ -47,7 +47,7 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "analytics"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "analytics_core",
  "async-trait",
@@ -74,6 +74,7 @@ dependencies = [
  "thiserror 2.0.18",
  "tilers",
  "tokio",
+ "tower",
  "tower-http",
  "tracing-subscriber",
  "uuid",
@@ -83,7 +84,7 @@ dependencies = [
 
 [[package]]
 name = "analytics_core"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "ev_lib",
  "jiff",
@@ -97,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "analytics_dashboard"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "analytics",
  "dioxus",
@@ -109,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "analytics_embeds"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "analytics_core",
  "dioxus",

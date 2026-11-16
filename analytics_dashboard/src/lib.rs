@@ -15,6 +15,6 @@ fn Root() -> Element {
 	// `set_server_url` panics on a second set, and the host re-creates the element
 	// on every remount (StrictMode, soft navigation back) — once per wasm instance.
 	static SERVER_URL: std::sync::Once = std::sync::Once::new();
-	SERVER_URL.call_once(|| dioxus_fullstack::set_server_url(format!("{}/mfe/analytics", ev_lib::mfe::bundle_origin()).leak()));
+	SERVER_URL.call_once(|| dioxus_fullstack::set_server_url(ev_lib::mfe::bundle_origin().leak()));
 	rsx! { analytics::App {} }
 }

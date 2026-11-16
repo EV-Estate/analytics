@@ -28,7 +28,7 @@ pub struct AppState {
 	pub store: crate::store::SqliteStore,
 	pub config: crate::config::AppConfig,
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn list_buildings(filter: Option<Vec<PropertyStateKind>>) -> Result<Vec<Building>, ServerFnError> {
 	use ev_lib::architecture::Specification;
 
@@ -46,7 +46,7 @@ pub async fn list_buildings(filter: Option<Vec<PropertyStateKind>>) -> Result<Ve
 	}
 	Ok(buildings)
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn get_building(id: BuildingId) -> Result<Option<Building>, ServerFnError> {
 	let state = app_state().await?;
 	let mut building = enrich_building(&state, id).await.map_err(to_server_err)?;
@@ -76,14 +76,14 @@ pub async fn building_json(Extension(state): Extension<AppState>, Path(id): Path
 	};
 	Json(building)
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn get_developer(name: String) -> Result<Option<crate::domain::Developer>, ServerFnError> {
 	use crate::store::BuildingRepository;
 
 	let store = app_state().await?.store;
 	store.get_developer(&name).await.map_err(to_server_err)
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn list_files(id: BuildingId, appt: Option<u32>) -> Result<Vec<PropertyFile>, ServerFnError> {
 	use crate::store::BuildingRepository;
 
@@ -92,7 +92,7 @@ pub async fn list_files(id: BuildingId, appt: Option<u32>) -> Result<Vec<Propert
 	// Building level shows building files only; a lot shows just its own.
 	Ok(files.into_iter().filter(|f| f.apt == appt).collect())
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn upload_file(
 	building_id: BuildingId,
 	appt: Option<u32>,
@@ -122,14 +122,14 @@ pub async fn upload_file(
 	store.add_file(file.clone(), &bytes).await.map_err(to_server_err)?;
 	Ok(file)
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn file_bytes(file_id: crate::domain::FileId) -> Result<Vec<u8>, ServerFnError> {
 	use crate::store::BuildingRepository;
 
 	let store = app_state().await?.store;
 	store.file_content(file_id).await.map_err(to_server_err)
 }
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn am_i_admin(token: String) -> Result<bool, ServerFnError> {
 	use secrecy::ExposeSecret as _;
 
@@ -140,7 +140,7 @@ pub async fn am_i_admin(token: String) -> Result<bool, ServerFnError> {
 /// row under the `""` user). An `xl` publish also becomes the `default` seed, the one
 /// bands without their own row open onto. Admin-only — this is the layout every visitor
 /// who hasn't cached their own lands on.
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn save_default_layout(json: String, band: tilers::core::Band, token: String) -> Result<(), ServerFnError> {
 	use secrecy::ExposeSecret as _;
 
@@ -159,7 +159,7 @@ pub async fn save_default_layout(json: String, band: tilers::core::Band, token: 
 
 /// This band's published seed, falling back to the `default` one, then to the
 /// committed `DEFAULT_LAYOUT` when nothing has been published in this DB yet.
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn load_default_layout(band: tilers::core::Band) -> Result<Option<String>, ServerFnError> {
 	let store = app_state().await?.store;
 	let key = band.to_string();
@@ -173,7 +173,7 @@ pub async fn load_default_layout(band: tilers::core::Band) -> Result<Option<Stri
 	Ok(seeds.get(&key).or_else(|| seeds.get("default")).map(|v| v.to_string()))
 }
 
-#[server]
+#[server(prefix = "/api/analytics")]
 pub async fn maps_api_key() -> Result<String, ServerFnError> {
 	use secrecy::ExposeSecret as _;
 

@@ -71,14 +71,14 @@ not fields on `Property`.
 ## Embedding
 Two microfrontends, both `ev_lib::mfe!` custom elements mounted in the host's light
 DOM (never an iframe), both reading the locale off the host's `<html lang>`, both
-served by this server under one prefix, `/mfe/analytics/`:
+bundles served by this server under `/mfe/analytics/`, APIs under `/api/analytics/`:
 
 | element | crate | kind | mounted at |
 |---|---|---|---|
 | `<mfe-analytics-dashboard>` | `analytics_dashboard` | page | estate host `/analytics` (same origin) |
 | `<mfe-analytics-overview>` | `analytics_embeds` (marketing tile) | component | landing / any host, cross-origin |
 
-The edge routes `https://estate.evinvest.ltd/mfe/analytics/*` here. What the server
+The edge routes `https://estate.evinvest.ltd/{mfe,api}/analytics/*` here. What the server
 answers (`main.rs`):
 
 | path | what | cache |
@@ -87,10 +87,10 @@ answers (`main.rs`):
 | `/mfe/analytics/{dashboard,overview}.css` | the stylesheets `mfe!` injects | `no-cache` + content `ETag` |
 | `/mfe/analytics/<rev>/*` | wasm-bindgen glue, wasm, snippets (`<rev>` = content hash at boot) | `immutable` |
 | `/mfe/analytics/seed/*` | the tile's banner images (`?v=` busted) | — |
-| `/mfe/analytics/api/*` | the `#[server]` fns (root set by the bundle from its own origin) | — |
-| `/mfe/analytics/api/embed/building/{id}` | the tile's plain JSON | — |
+| `/api/analytics/*` | the `#[server]` fns (`prefix = "/api/analytics"`, server URL = the bundle's origin) | — |
+| `/api/analytics/embed/building/{id}` | the tile's plain JSON | — |
+| `/mfe/analytics/api/*` | alias of `/api/analytics/*` for 0.4 bundles; to be removed | — |
 | `/health` | probe | — |
-| `/api/embed/building/{id}` | legacy tile JSON for pre-0.4 bundles; to be removed | — |
 
 Invariants:
 - **Every URL a bundle emits derives from its own origin** (`bundle_origin()`, from

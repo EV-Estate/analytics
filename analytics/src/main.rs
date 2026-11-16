@@ -141,15 +141,20 @@ fn main() {
 		.allow_origin(Any)
 		.allow_methods([Method::GET, Method::POST])
 		.allow_headers([header::CONTENT_TYPE]);
-	let mfe = Router::new()
+	let api = Router::new()
 		.register_server_functions()
 		.with_state(FullstackState::headless())
-		.route("/api/embed/building/{id}", get(analytics::api::building_json))
-		.merge(bundle.router());
+		.route("/api/analytics/embed/building/{id}", get(analytics::api::building_json));
+	// alias: wasm still running from a 0.4 bundle calls `/mfe/analytics/api/<same path>`
+	let api_alias = tower::ServiceExt::map_request(api.clone(), |mut req: dioxus::server::axum::extract::Request| {
+		*req.uri_mut() = format!("/api/analytics{}", req.uri()).parse().expect("a path under a static prefix is a valid URI");
+		req
+	});
 	let router = Router::new()
-		.nest("/mfe/analytics", mfe)
-		.route("/health", get(|| async { "ok" }))
-		.route("/api/embed/building/{id}", get(analytics::api::building_json)); // legacy: pre-0.4 tile bundles still cached in browsers
+		.merge(api)
+		.nest_service("/mfe/analytics/api", api_alias)
+		.nest("/mfe/analytics", bundle.router())
+		.route("/health", get(|| async { "ok" }));
 	#[cfg(debug_assertions)]
 	let router = router
 		.route("/", get(|| async { dioxus::server::axum::response::Html(DEV_HARNESS_OVERVIEW) }))
