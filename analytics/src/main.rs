@@ -145,14 +145,8 @@ fn main() {
 		.register_server_functions()
 		.with_state(FullstackState::headless())
 		.route("/api/analytics/embed/building/{id}", get(analytics::api::building_json));
-	// alias: wasm still running from a 0.4 bundle calls `/mfe/analytics/api/<same path>`
-	let api_alias = tower::ServiceExt::map_request(api.clone(), |mut req: dioxus::server::axum::extract::Request| {
-		*req.uri_mut() = format!("/api/analytics{}", req.uri()).parse().expect("a path under a static prefix is a valid URI");
-		req
-	});
 	let router = Router::new()
 		.merge(api)
-		.nest_service("/mfe/analytics/api", api_alias)
 		.nest("/mfe/analytics", bundle.router())
 		.route("/health", get(|| async { "ok" }));
 	#[cfg(debug_assertions)]

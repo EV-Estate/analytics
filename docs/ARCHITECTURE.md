@@ -89,7 +89,6 @@ answers (`main.rs`):
 | `/mfe/analytics/seed/*` | the tile's banner images (`?v=` busted) | — |
 | `/api/analytics/*` | the `#[server]` fns (`prefix = "/api/analytics"`, server URL = the bundle's origin) | — |
 | `/api/analytics/embed/building/{id}` | the tile's plain JSON | — |
-| `/mfe/analytics/api/*` | alias of `/api/analytics/*` for 0.4 bundles; to be removed | — |
 | `/health` | probe | — |
 
 Invariants:
