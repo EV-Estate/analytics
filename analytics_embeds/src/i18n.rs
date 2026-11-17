@@ -45,9 +45,9 @@ pub fn Accented(text: String, class: String) -> Element {
 		// Odd segments are the marked ones: "a *b* c" -> ["a ", "b", " c"].
 		for (i , part) in text.split('*').enumerate() {
 			if i % 2 == 1 {
-				span { class: "{class}", "{part}" }
+				span { class: class.clone(), {part} }
 			} else {
-				"{part}"
+				{part}
 			}
 		}
 	}

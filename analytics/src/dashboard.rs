@@ -141,7 +141,7 @@ pub fn Dashboard() -> Element {
 					class: "pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded
 						border border-main-mist/20 bg-main-black/90 px-4 py-2 font-mono text-xs
 						tracking-wider text-main-accent-t1 shadow-lg",
-					"{msg}"
+					{msg}
 				}
 			}
 		}

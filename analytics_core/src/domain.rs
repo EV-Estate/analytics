@@ -227,7 +227,7 @@ impl Building {
 		let mut weekly: BTreeMap<i64, (f64, u32)> = BTreeMap::new();
 		for a in &self.apartments {
 			for (t, v) in &a.price_series {
-				let e = weekly.entry(t.as_second() / WEEK).or_default();
+				let e = weekly.entry(t.as_second().div_euclid(WEEK)).or_default();
 				e.0 += *v;
 				e.1 += 1;
 			}

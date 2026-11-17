@@ -8,9 +8,9 @@
 //! binary to be seen. Nothing is rendered here; that is the point.
 
 #[path = "../src/i18n.rs"]
-mod i18n;
+pub mod i18n; // pub: what only the wasm shell uses is not dead here
 #[path = "../src/view.rs"]
-mod view;
+pub mod view;
 
 use ev_lib::i18n::{LOCALES, policy};
 

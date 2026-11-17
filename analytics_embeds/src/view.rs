@@ -151,9 +151,9 @@ fn FeaturedCard(building: Featured) -> Element {
 					)}
 				}
 				div { class: "grid max-w-md grid-cols-3 gap-4 border-t border-main-mist/10 pt-6",
-					Stat { label: t!(tr, "embeds.stat.targetYield", "Target Yield"), value_class: "text-main-accent-t2", "{target_yield}" }
-					Stat { label: t!(tr, "embeds.stat.appreciation", "Appreciation"), value_class: "text-main-accent-t3", "{appreciation}" }
-					Stat { label: t!(tr, "embeds.stat.status", "Status"), value_class: "text-white", "{status}" }
+					Stat { label: t!(tr, "embeds.stat.targetYield", "Target Yield"), value_class: "text-main-accent-t2", {target_yield} }
+					Stat { label: t!(tr, "embeds.stat.appreciation", "Appreciation"), value_class: "text-main-accent-t3", {appreciation} }
+					Stat { label: t!(tr, "embeds.stat.status", "Status"), value_class: "text-white", {status} }
 				}
 			}
 		}
@@ -236,6 +236,20 @@ fn WhyCard() -> Element {
 // applied directly, not via arbitrary-variant overrides), so the track fill and round
 // thumb don't depend on `cn!` merge survival.
 
+/// Captures the pointer on a slider track and reads the track's x-origin and width.
+#[cfg(target_arch = "wasm32")]
+fn capture_track(track: &MountedData, e: &PointerEvent) -> (f64, f64) {
+	let raw = e.data().as_web_event();
+	let track_el = track.as_web_event();
+	let _ = track_el.set_pointer_capture(raw.pointer_id()); // fails only for a pointer already released, which leaves no drag to capture
+	let rect = track_el.get_bounding_client_rect();
+	(rect.x(), rect.width())
+}
+#[cfg(not(target_arch = "wasm32"))]
+fn capture_track(_: &MountedData, _: &PointerEvent) -> (f64, f64) {
+	(0.0, 1.0)
+}
+
 fn snap(v: f64) -> f64 {
 	let v = v.clamp(A_MIN, A_MAX);
 	(((v - A_MIN) / A_STEP).round() * A_STEP + A_MIN).clamp(A_MIN, A_MAX)
@@ -299,18 +313,7 @@ fn Calculator() -> Element {
 							class: "relative flex h-6 w-full touch-none select-none items-center",
 							onpointerdown: move |e: PointerEvent| {
 								let Some(t) = track() else { return };
-								let (ox, w) = {
-									#[cfg(target_arch = "wasm32")]
-									{
-										let raw = e.data().as_web_event();
-										let track_el = t.as_web_event();
-										let _ = track_el.set_pointer_capture(raw.pointer_id());
-										let rect = track_el.get_bounding_client_rect();
-										(rect.x(), rect.width())
-									}
-									#[cfg(not(target_arch = "wasm32"))]
-									{ (0.0, 1.0) }
-								};
+								let (ox, w) = capture_track(&t, &e);
 								bounds.set((ox, w));
 								dragging.set(true);
 								let ratio = (e.client_coordinates().x - ox) / w.max(f64::EPSILON);
@@ -451,18 +454,7 @@ fn FactorRow(label: &'static str, rho: f64, value: Signal<f64>) -> Element {
 				"aria-valuemax": EXPO_MAX,
 				onpointerdown: move |e: PointerEvent| {
 					let Some(t) = track() else { return };
-					let (ox, w) = {
-						#[cfg(target_arch = "wasm32")]
-						{
-							let raw = e.data().as_web_event();
-							let track_el = t.as_web_event();
-							let _ = track_el.set_pointer_capture(raw.pointer_id());
-							let rect = track_el.get_bounding_client_rect();
-							(rect.x(), rect.width())
-						}
-						#[cfg(not(target_arch = "wasm32"))]
-						{ (0.0, 1.0) }
-					};
+					let (ox, w) = capture_track(&t, &e);
 					bounds.set((ox, w));
 					dragging.set(true);
 					let ratio = (e.client_coordinates().x - ox) / w.max(f64::EPSILON);
@@ -530,7 +522,7 @@ fn ValueStepper(value: Signal<f64>, step: f64, big_step: f64, min: f64, max: f64
 	// Step from what's on screen: an uncommitted typed buffer wins over the last
 	// committed value, so ↑ after typing "8" gives 9 — not committed+step.
 	let mut nudge = move |delta: f64| {
-		let base = editing().as_deref().and_then(parse_raw).unwrap_or_else(|| value());
+		let base = editing().as_deref().and_then(parse_raw).unwrap_or_else(|| value.cloned());
 		value.set((base + delta).clamp(min, max));
 		editing.set(None);
 	};
@@ -591,7 +583,7 @@ fn ValueStepper(value: Signal<f64>, step: f64, big_step: f64, min: f64, max: f64
 fn Stat(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		div {
-			span { class: "mb-1 block font-mono text-[0.625rem] uppercase text-main-mist/40", "{label}" }
+			span { class: "mb-1 block font-mono text-[0.625rem] uppercase text-main-mist/40", {label} }
 			span { class: "text-lg font-serif font-bold {value_class}", {children} }
 		}
 	}
@@ -601,7 +593,7 @@ fn Stat(label: String, #[props(default)] value_class: String, children: Element)
 fn Row(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		li { class: "flex justify-between",
-			span { class: "text-main-mist/40", "{label}" }
+			span { class: "text-main-mist/40", {label} }
 			span { class: "font-bold {value_class}", {children} }
 		}
 	}

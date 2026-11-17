@@ -85,7 +85,7 @@ fn Tile(label: String, value: usize, value_class: String) -> Element {
 	rsx! {
 		div { class: "flex flex-col items-center gap-1 rounded-md border border-border bg-main-surface py-3",
 			span { class: "font-serif text-3xl font-semibold {value_class}", "{value}" }
-			span { class: "text-[10px] uppercase tracking-widest text-muted-foreground", "{label}" }
+			span { class: "text-[10px] uppercase tracking-widest text-muted-foreground", {label} }
 		}
 	}
 }
@@ -95,7 +95,7 @@ fn Legend(color: String, label: String) -> Element {
 	rsx! {
 		span { class: "flex items-center gap-1.5",
 			span { class: "h-2.5 w-2.5 rounded-full", style: "background:{color}" }
-			"{label}"
+			{label}
 		}
 	}
 }

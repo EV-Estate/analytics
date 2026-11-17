@@ -41,7 +41,7 @@ fn ApartmentDetails(apt: Apartment) -> Element {
 	rsx! {
 		div { class: "flex flex-col",
 			Kv { label: t!(tr, "details.apartment", "Apartment"), "#{apt.number}" }
-			Kv { label: t!(tr, "details.status", "Status"), value_class: "text-main-accent-t3", "{status}" }
+			Kv { label: t!(tr, "details.status", "Status"), value_class: "text-main-accent-t3", {status} }
 			match apt.price {
 				Some(p) => rsx! { Kv { label: t!(tr, "details.price", "Price"), value_class: "text-main-accent-t3", "{p}" } },
 				None => rsx! { Kv { label: t!(tr, "details.price", "Price"), value_class: "text-warn", "?" } },
@@ -90,15 +90,15 @@ fn BuildingDetails(building: Building) -> Element {
 			}
 
 			if let Some(terms) = crate::translations::terms(&building, tr.locale()) {
-				Note { label: t!(tr, "details.terms", "Terms"), "{terms}" }
+				Note { label: t!(tr, "details.terms", "Terms"), {terms} }
 			}
 
 			if let Some(notes) = building.deal.as_ref().and_then(|d| d.notes.as_ref()) {
-				Note { label: t!(tr, "details.dealNotes", "Deal notes"), "{notes}" }
+				Note { label: t!(tr, "details.dealNotes", "Deal notes"), {notes.clone()} }
 			}
 
 			if let Some(reasoning) = crate::translations::reasoning(&building, tr.locale()) {
-				Note { label: t!(tr, "details.reasoning", "Reasoning"), "{reasoning}" }
+				Note { label: t!(tr, "details.reasoning", "Reasoning"), {reasoning} }
 			}
 		}
 	}
@@ -110,7 +110,7 @@ fn BuildingDetails(building: Building) -> Element {
 fn Kv(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		div { class: "flex items-center justify-between gap-4 border-t border-border py-2.5 first:border-t-0",
-			span { class: "text-sm text-muted-foreground", "{label}" }
+			span { class: "text-sm text-muted-foreground", {label} }
 			span { class: "text-right text-sm font-semibold {value_class}", {children} }
 		}
 	}
@@ -122,7 +122,7 @@ fn Kv(label: String, #[props(default)] value_class: String, children: Element) -
 fn Stat(label: String, #[props(default)] value_class: String, children: Element) -> Element {
 	rsx! {
 		div { class: "flex flex-col gap-1",
-			span { class: "text-[10px] font-medium uppercase tracking-wide text-muted-foreground", "{label}" }
+			span { class: "text-[10px] font-medium uppercase tracking-wide text-muted-foreground", {label} }
 			span { class: "font-serif text-lg font-semibold {value_class}", {children} }
 		}
 	}
@@ -145,12 +145,12 @@ fn DeveloperKv(name: String) -> Element {
 			Some(note) => rsx! {
 				Kv { label: t!(tr, "details.developer", "Developer"),
 					Tooltip {
-						TooltipTrigger { class: "cursor-help text-sm font-semibold underline decoration-dotted underline-offset-4", "{name}" }
-						TooltipContent { class: "max-w-xs text-left text-xs font-normal normal-case", "{note}" }
+						TooltipTrigger { class: "cursor-help text-sm font-semibold underline decoration-dotted underline-offset-4", {name} }
+						TooltipContent { class: "max-w-xs text-left text-xs font-normal normal-case", {note} }
 					}
 				}
 			},
-			None => rsx! { Kv { label: t!(tr, "details.developer", "Developer"), "{name}" } },
+			None => rsx! { Kv { label: t!(tr, "details.developer", "Developer"), {name} } },
 		}
 	}
 }
@@ -160,7 +160,7 @@ fn DeveloperKv(name: String) -> Element {
 fn Note(label: String, children: Element) -> Element {
 	rsx! {
 		div { class: "mt-2 flex flex-col gap-1.5 border-t border-border pt-3",
-			span { class: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", "{label}" }
+			span { class: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", {label} }
 			p { class: "text-sm leading-relaxed text-muted-foreground", {children} }
 		}
 	}

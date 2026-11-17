@@ -110,7 +110,7 @@ fn Breadcrumb(building: String, appt: Option<u32>) -> Element {
 		nav { class: "flex items-center gap-2 text-sm text-muted-foreground",
 			span { {t!(tr, "header.buildings", "Buildings")} }
 			span { "›" }
-			span { class: if appt.is_some() { "" } else { "text-foreground" }, "{building}" }
+			span { class: if appt.is_some() { "" } else { "text-foreground" }, {building} }
 			if let Some(n) = appt {
 				span { "›" }
 				span { class: "text-foreground", {t!(tr, "header.apt", "Apt {n}", n = n)} }

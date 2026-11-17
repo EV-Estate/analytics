@@ -41,15 +41,12 @@ wasm-bindgen.workspace = true
 [dependencies]
 analytics_core.workspace = true
 async-trait.workspace = true
-derive-new.workspace = true
 dioxus.workspace = true
 dioxus-fullstack.workspace = true
 jiff.workspace = true
 secrecy.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-strum = { workspace = true, features = ["strum_macros", "derive"] }
-thiserror.workspace = true
 tilers.workspace = true
 uuid.workspace = true
 

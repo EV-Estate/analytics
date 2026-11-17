@@ -42,7 +42,7 @@ fn ChartBody(building: Building, apt: Option<Apartment>) -> Element {
 	};
 	rsx! {
 		div { class: "flex flex-col gap-0.5",
-			span { class: "text-xs uppercase tracking-wide text-muted-foreground", "{label}" }
+			span { class: "text-xs uppercase tracking-wide text-muted-foreground", {label} }
 			match price {
 				Some(p) => rsx! { span { class: "font-serif text-3xl font-semibold", "{p}" } },
 				None => rsx! { span { class: "font-serif text-3xl font-semibold text-warn", "?" } },

@@ -15,9 +15,9 @@
 //! ```
 
 #[path = "../src/i18n.rs"]
-mod i18n;
+pub mod i18n; // pub: what only the wasm shell uses is not dead here
 #[path = "../src/view.rs"]
-mod view;
+pub mod view;
 
 fn main() {
 	let catalogue = ev_lib::i18n::catalogue().unwrap_or_else(|conflicts| {

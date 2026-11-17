@@ -26,7 +26,7 @@ pub type Filter = Signal<Vec<PropertyStateKind>>;
 pub type BuildingResource = Resource<Option<Building>>;
 
 /// Band the dashboard currently has a layout for, written on every band entry and
-/// surfaced in [`BuildTag`]. `None` until the first measure.
+/// surfaced in `BuildTag`. `None` until the first measure.
 pub type SeedGroup = Signal<Option<tilers::core::Band>>;
 
 /// The dashboard, mounted by the `analytics_dashboard` page bundle into

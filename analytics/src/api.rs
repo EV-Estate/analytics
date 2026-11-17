@@ -1,3 +1,7 @@
+//! The only client↔server seam. Each `#[server]` fn runs on the host, pulling the
+//! `SqliteStore` / `AppConfig` out of the per-request axum extension (attached in
+//! `main`), and is called as an async fn from the wasm client.
+
 #[cfg(not(target_arch = "wasm32"))]
 use std::collections::BTreeMap;
 
@@ -16,10 +20,6 @@ const CACHE_TTL_SECS: i64 = 30 * 24 * 3600;
 /// `layouts` row, which overrides this.
 #[cfg(not(target_arch = "wasm32"))]
 const DEFAULT_LAYOUT: &str = include_str!("../assets/dashboard_layout.json");
-/// The only client↔server seam. Each `#[server]` fn runs on the host, pulling the
-/// `SqliteStore` / `AppConfig` out of the per-request axum extension (attached in
-/// `main`), and is called as an async fn from the wasm client.
-
 /// Shared host state, attached to every request as an axum `Extension` in `main`.
 /// Server-only: the wasm client never constructs it.
 #[cfg(not(target_arch = "wasm32"))]
