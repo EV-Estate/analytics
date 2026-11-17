@@ -122,29 +122,11 @@ pub async fn seed(store: &SqliteStore) -> Result<(), DomainError> {
 		return Ok(());
 	}
 
-	struct Seed {
-		/// Fixed UUID so a property keeps the same id across reseeds — deep links and the
-		/// embed's `Q1_PROPERTY` / `TMS_PROPERTY` constants depend on it being stable.
-		id: &'static str,
-		name: &'static str,
-		place: &'static str,
-		/// `None` where we have no real number yet (the two under-construction towers).
-		price: Option<f64>,
-		state: PropertyState,
-		construction: ConstructionStatus,
-		/// Headline target rate (% / yr), surfaced as "Target Yield". 0 = unset.
-		target_appreciation: f64,
-		developer: &'static str,
-		research_url: &'static str,
-		terms: &'static str,
-		reasoning: &'static str,
-		/// (filename-on-disk, content-type, bytes). Floor plans / unit layouts ride
-		/// as `Pic` too so they render inline in the media gallery.
-		pics: &'static [(&'static str, &'static str, &'static [u8])],
+	macro_rules! pics {
+		($dir:literal: $($file:literal),+) => {
+			&[$(($file, include_bytes!(concat!("../assets/seed/", $dir, "/", $file)) as &[u8])),+]
+		};
 	}
-
-	const JPG: &str = "image/jpeg";
-	const PNG: &str = "image/png";
 
 	// Purchase instants are relative to now so the demo holds regardless of when the
 	// DB is seeded. Melody is deliberately old: its mock series ends long before today,
@@ -152,126 +134,124 @@ pub async fn seed(store: &SqliteStore) -> Result<(), DomainError> {
 	let now = jiff::Timestamp::now();
 	let weeks_ago = |w: i64| jiff::Timestamp::from_second(now.as_second() - w * 7 * 24 * 3600).expect("seed purchase date in range");
 
-	let seeds = [
-		Seed {
-			id: "9a5a7d3b-cd42-4d65-a426-5b705a3d0cc9",
-			name: "Quy Nhơn Melody",
-			place: "ChIJOYTnE0ZtbzERRZnbRLfEIU8", // Căn Hộ Quy Nhơn Melody
-			price: Some(96_000.0),
-			state: PropertyState::Purchased(weeks_ago(54)),
-			construction: ConstructionStatus::Completed,
-			target_appreciation: 18.0,
-			developer: "Hưng Thịnh",
-			research_url: "https://www.hungthinhland.com/en/projects/detail/QUY-NHON-MELODY.html",
-			terms: "Handed over early 2024 (topped out 2021, completed Dec 2023). 4-star seafront tourism-apartment standard.",
-			reasoning: "Two 35-floor towers (Tropical & Flamenco) with Kim Cúc, 1,332 units + 21 shops on the An Dương Vương–Chương Dương beachfront. Representative 2-BR ≈ 2.4 tỷ VND. Beachfront short-stay rental demand behind an established national brand.",
-			pics: &[("building.jpg", JPG, include_bytes!("../assets/seed/melody/building.jpg"))],
-		},
-		Seed {
-			id: "dd5a8289-a5cd-4fb4-8e69-582b065179fc",
-			name: "Vina2 Panorama Quy Nhơn",
-			place: "ChIJTX0aij9rbzERvgC-Y2tqNxw", // VINA2 Panorama
-			price: Some(60_000.0),
-			state: PropertyState::Purchased(weeks_ago(20)),
-			construction: ConstructionStatus::Completed,
-			target_appreciation: 12.0,
-			developer: "VINA2",
-			research_url: "https://quynhonhomes.vn/can-ho-quy-nhon/can-ho-vina2-panorama/",
-			terms: "Built and handed over from early 2024; residents occupying. Move-in available from 30% of unit value.",
-			reasoning: "20 floors, 252 units (Studio–3BR) in the Đê Đông resettlement area, Nhơn Bình; riverside with pool and shophouse podium. ~22–26 tr/m². Lowest entry price of the four; Hà Thanh river / Thị Nại lagoon outlook.",
-			pics: &[
-				("building.png", PNG, include_bytes!("../assets/seed/vina2_panorama/building.png")),
-				("real.jpg", JPG, include_bytes!("../assets/seed/vina2_panorama/real.jpg")),
-				("floorplan.jpg", JPG, include_bytes!("../assets/seed/vina2_panorama/floorplan.jpg")),
-			],
-		},
-		Seed {
-			id: "1eeab4aa-c377-4fcb-aebd-57f917a0b844",
-			name: "Ecolife Riverside Quy Nhơn",
-			place: "ChIJGb0UXFRrbzER9Ym2RZ7csFE", // Ecolife Riverside Quy Nhơn
-			price: Some(59_000.0),
-			state: PropertyState::Purchased(weeks_ago(14)),
-			construction: ConstructionStatus::Completed,
-			target_appreciation: 10.0,
-			developer: "Capital House",
-			research_url: "https://quynhonhomes.vn/can-ho-quy-nhon/ecolife-riverside/",
-			terms: "Completed and handed over; red book (sổ hồng) issued — move in immediately.",
-			reasoning: "27-floor single tower, 694 units on Điện Biên Phủ St along the Hà Thanh river. Green-building positioning; issued title lowers legal risk. Representative 2-BR ≈ 1.48 tỷ VND.",
-			pics: &[
-				("building.png", PNG, include_bytes!("../assets/seed/ecolife/building.png")),
-				("real.jpg", JPG, include_bytes!("../assets/seed/ecolife/real.jpg")),
-				("floorplan.png", PNG, include_bytes!("../assets/seed/ecolife/floorplan.png")),
-			],
-		},
-		Seed {
-			id: "12958cdb-b5e1-4aa3-80dd-91a8b9048916",
-			name: "The Calla (Calla Apartment Quy Nhơn)",
-			place: "ChIJt5jJjCxtbzERKfYIEUv0i-A", // The Calla (matches the shared map pin)
-			price: Some(80_000.0),
-			state: PropertyState::Purchased(weeks_ago(9)),
-			construction: ConstructionStatus::Completed,
-			target_appreciation: 14.0,
-			developer: "Armo",
-			research_url: "https://quynhonhomes.vn/can-ho-quy-nhon/calla-apartment-quy-nhon/",
-			terms: "Completed, sổ hồng available. Bank financing up to 80% LTV with interest grace through handover.",
-			reasoning: "29-floor tower (100m), 454 units + 13 shophouses in the Vũng Chua green urban area (QL1D, Ghềnh Ráng); ~800m to the beach. First garden-apartment in Quy Nhơn; mountain + sea + city views. Units 39–82m² (1–3BR), ~25–28 tr/m². Total project investment 563 tỷ VND.",
-			pics: &[
-				("building.jpg", JPG, include_bytes!("../assets/seed/calla/building.jpg")),
-				("livingroom.jpg", JPG, include_bytes!("../assets/seed/calla/livingroom.jpg")),
-				("floorplan.png", PNG, include_bytes!("../assets/seed/calla/floorplan.png")),
-				("unit_87m2.png", PNG, include_bytes!("../assets/seed/calla/unit_87m2.png")),
-			],
-		},
-		Seed {
-			id: "b41510ef-1e74-4d4f-a15c-1dfafdd0ee5a", // matches embed::Q1_PROPERTY
-			name: "Q1 Tower (Cadia Quy Nhơn)",
-			place: "ChIJDQMq0yFtbzERY32pkB70paY", // Q1 Tower Quy Nhơn, 1 Ngô Mây
-			price: Some(90_000.0),                // provisional: pre-handover branded beachfront residence
-			state: PropertyState::Purchasing,
-			construction: ConstructionStatus::UnderConstruction,
-			target_appreciation: 12.0,
-			developer: "Phát Đạt",
-			research_url: "https://q1-tower.vn/",
-			terms: "Under construction (broke ground Jun 2022). Beachfront 5-star branded-residence; not yet handed over.",
-			reasoning: "Diamond-plot 5,246m² at No.1 Ngô Mây, directly facing Quy Nhơn beach & Nguyễn Tất Thành square. 5-star tourism apartments + hotel operated to Wyndham standard, smart-home fitted. Branded-residence scarcity in the city centre; pre-handover entry.",
-			pics: &[
-				("building.jpg", JPG, include_bytes!("../assets/seed/q1_tower/building.jpg")),
-				("render.jpg", JPG, include_bytes!("../assets/seed/q1_tower/render.jpg")),
-				("livingroom.jpg", JPG, include_bytes!("../assets/seed/q1_tower/livingroom.jpg")),
-			],
-		},
-		Seed {
-			id: "c19bded1-1a13-49ad-a0f0-549b2aec2d0e", // matches embed::TMS_PROPERTY
-			name: "TMS Luxury Hotel & Residence Quy Nhơn",
-			place: "ChIJBVOIrolsbzERr_9ibfn1t-I", // Grand Hyams Hotel — the 5-star hotel occupying the TMS tower
-			price: Some(76_000.0),                // average apartment ≈ 1.9 tỷ VND @ ~25,000 VND/USD
-			state: PropertyState::Interesting,
-			construction: ConstructionStatus::Completed,
-			target_appreciation: 12.0,
-			developer: "TMS Group",
-			research_url: "https://tms-quynhon.com",
-			terms: "Completed and operating since 2022 (groundbreaking 2017); sổ hồng issuance underway. Condotel lease-back: 10%/yr guaranteed for 10 years (after 95% payment) then 85% owner / 15% operator, or 80/20 non-guaranteed, plus ~15 free nights/yr — treat the guarantee as a marketed target given VN condotel payout risk.",
-			reasoning: "42-floor beachfront landmark (tallest in Quy Nhơn) at 28 Nguyễn Huệ, ~240m from the city beach. Single tower: ~746 condotel/tourist apartments (F4–F28) above 328 five-star rooms run as Grand Hyams Hotel (F29–F41) and an F41–42 sky bar. 1BR ~45–50m², 2BR ~65–71m² at ~29–36 tr/m²; representative apartment ≈ 1.9 tỷ VND (~$76k). Operating asset with branded-residence scarcity in the city centre.",
-			pics: &[("building.jpg", JPG, include_bytes!("../assets/seed/tms/building.jpg"))],
-		},
-		Seed {
-			id: "9c4acfee-9597-455e-b983-b60143fdaa90",
-			name: "Triton — Quy Nhơn Sky Residence",
-			place: "ChIJ7QjTJQBtbzERetFnxYHlsUM", // Triton Sky Residence, 72B Tây Sơn
-			price: Some(72_000.0),                // provisional: pricing still firming up (launched 2025)
-			state: PropertyState::Purchasing,
-			construction: ConstructionStatus::UnderConstruction,
-			target_appreciation: 0.0,
-			developer: "Arita",
-			research_url: "https://tritonquynhonsky.vn/",
-			terms: "Under construction (launched 2025); pricing still being released. Not yet handed over.",
-			reasoning: "48-storey premium tower (4 basements) at 72B Tây Sơn, Quy Nhơn Nam. Tallest of the set; early-stage entry on a central arterial. Specs and pricing still firming up — treat valuation as provisional.",
-			pics: &[
-				("building.jpg", JPG, include_bytes!("../assets/seed/triton/building.jpg")),
-				("location.jpg", JPG, include_bytes!("../assets/seed/triton/location.jpg")),
-				("floorplan.jpg", JPG, include_bytes!("../assets/seed/triton/floorplan.jpg")),
-			],
-		},
+	/// Fixed id (deep links and the embed's `Q1_PROPERTY` / `TMS_PROPERTY` depend on it
+	/// staying put across reseeds), name, Google place, price (`None` with no real number yet),
+	/// state, construction, headline target rate in %/yr ("Target Yield", 0 = unset), developer,
+	/// research url, terms, reasoning, pics as (filename-on-disk, bytes): floor plans
+	/// and unit layouts ride as `Pic` too so they render inline in the media gallery.
+	type Seed = (
+		&'static str,
+		&'static str,
+		&'static str,
+		Option<f64>,
+		PropertyState,
+		ConstructionStatus,
+		f64,
+		&'static str,
+		&'static str,
+		&'static str,
+		&'static str,
+		&'static [(&'static str, &'static [u8])],
+	);
+	let seeds: [Seed; 7] = [
+		(
+			"9a5a7d3b-cd42-4d65-a426-5b705a3d0cc9",
+			"Quy Nhơn Melody",
+			"ChIJOYTnE0ZtbzERRZnbRLfEIU8", // Căn Hộ Quy Nhơn Melody
+			Some(96_000.0),
+			PropertyState::Purchased(weeks_ago(54)),
+			ConstructionStatus::Completed,
+			18.0,
+			"Hưng Thịnh",
+			"https://www.hungthinhland.com/en/projects/detail/QUY-NHON-MELODY.html",
+			"Handed over early 2024 (topped out 2021, completed Dec 2023). 4-star seafront tourism-apartment standard.",
+			"Two 35-floor towers (Tropical & Flamenco) with Kim Cúc, 1,332 units + 21 shops on the An Dương Vương–Chương Dương beachfront. Representative 2-BR ≈ 2.4 tỷ VND. Beachfront short-stay rental demand behind an established national brand.",
+			pics!("melody": "building.jpg"),
+		),
+		(
+			"dd5a8289-a5cd-4fb4-8e69-582b065179fc",
+			"Vina2 Panorama Quy Nhơn",
+			"ChIJTX0aij9rbzERvgC-Y2tqNxw", // VINA2 Panorama
+			Some(60_000.0),
+			PropertyState::Purchased(weeks_ago(20)),
+			ConstructionStatus::Completed,
+			12.0,
+			"VINA2",
+			"https://quynhonhomes.vn/can-ho-quy-nhon/can-ho-vina2-panorama/",
+			"Built and handed over from early 2024; residents occupying. Move-in available from 30% of unit value.",
+			"20 floors, 252 units (Studio–3BR) in the Đê Đông resettlement area, Nhơn Bình; riverside with pool and shophouse podium. ~22–26 tr/m². Lowest entry price of the four; Hà Thanh river / Thị Nại lagoon outlook.",
+			pics!("vina2_panorama": "building.png", "real.jpg", "floorplan.jpg"),
+		),
+		(
+			"1eeab4aa-c377-4fcb-aebd-57f917a0b844",
+			"Ecolife Riverside Quy Nhơn",
+			"ChIJGb0UXFRrbzER9Ym2RZ7csFE", // Ecolife Riverside Quy Nhơn
+			Some(59_000.0),
+			PropertyState::Purchased(weeks_ago(14)),
+			ConstructionStatus::Completed,
+			10.0,
+			"Capital House",
+			"https://quynhonhomes.vn/can-ho-quy-nhon/ecolife-riverside/",
+			"Completed and handed over; red book (sổ hồng) issued — move in immediately.",
+			"27-floor single tower, 694 units on Điện Biên Phủ St along the Hà Thanh river. Green-building positioning; issued title lowers legal risk. Representative 2-BR ≈ 1.48 tỷ VND.",
+			pics!("ecolife": "building.png", "real.jpg", "floorplan.png"),
+		),
+		(
+			"12958cdb-b5e1-4aa3-80dd-91a8b9048916",
+			"The Calla (Calla Apartment Quy Nhơn)",
+			"ChIJt5jJjCxtbzERKfYIEUv0i-A", // The Calla (matches the shared map pin)
+			Some(80_000.0),
+			PropertyState::Purchased(weeks_ago(9)),
+			ConstructionStatus::Completed,
+			14.0,
+			"Armo",
+			"https://quynhonhomes.vn/can-ho-quy-nhon/calla-apartment-quy-nhon/",
+			"Completed, sổ hồng available. Bank financing up to 80% LTV with interest grace through handover.",
+			"29-floor tower (100m), 454 units + 13 shophouses in the Vũng Chua green urban area (QL1D, Ghềnh Ráng); ~800m to the beach. First garden-apartment in Quy Nhơn; mountain + sea + city views. Units 39–82m² (1–3BR), ~25–28 tr/m². Total project investment 563 tỷ VND.",
+			pics!("calla": "building.jpg", "livingroom.jpg", "floorplan.png", "unit_87m2.png"),
+		),
+		(
+			"b41510ef-1e74-4d4f-a15c-1dfafdd0ee5a", // matches embed::Q1_PROPERTY
+			"Q1 Tower (Cadia Quy Nhơn)",
+			"ChIJDQMq0yFtbzERY32pkB70paY", // Q1 Tower Quy Nhơn, 1 Ngô Mây
+			Some(90_000.0),                // provisional: pre-handover branded beachfront residence
+			PropertyState::Purchasing,
+			ConstructionStatus::UnderConstruction,
+			12.0,
+			"Phát Đạt",
+			"https://q1-tower.vn/",
+			"Under construction (broke ground Jun 2022). Beachfront 5-star branded-residence; not yet handed over.",
+			"Diamond-plot 5,246m² at No.1 Ngô Mây, directly facing Quy Nhơn beach & Nguyễn Tất Thành square. 5-star tourism apartments + hotel operated to Wyndham standard, smart-home fitted. Branded-residence scarcity in the city centre; pre-handover entry.",
+			pics!("q1_tower": "building.jpg", "render.jpg", "livingroom.jpg"),
+		),
+		(
+			"c19bded1-1a13-49ad-a0f0-549b2aec2d0e", // matches embed::TMS_PROPERTY
+			"TMS Luxury Hotel & Residence Quy Nhơn",
+			"ChIJBVOIrolsbzERr_9ibfn1t-I", // Grand Hyams Hotel — the 5-star hotel occupying the TMS tower
+			Some(76_000.0),                // average apartment ≈ 1.9 tỷ VND @ ~25,000 VND/USD
+			PropertyState::Interesting,
+			ConstructionStatus::Completed,
+			12.0,
+			"TMS Group",
+			"https://tms-quynhon.com",
+			"Completed and operating since 2022 (groundbreaking 2017); sổ hồng issuance underway. Condotel lease-back: 10%/yr guaranteed for 10 years (after 95% payment) then 85% owner / 15% operator, or 80/20 non-guaranteed, plus ~15 free nights/yr — treat the guarantee as a marketed target given VN condotel payout risk.",
+			"42-floor beachfront landmark (tallest in Quy Nhơn) at 28 Nguyễn Huệ, ~240m from the city beach. Single tower: ~746 condotel/tourist apartments (F4–F28) above 328 five-star rooms run as Grand Hyams Hotel (F29–F41) and an F41–42 sky bar. 1BR ~45–50m², 2BR ~65–71m² at ~29–36 tr/m²; representative apartment ≈ 1.9 tỷ VND (~$76k). Operating asset with branded-residence scarcity in the city centre.",
+			pics!("tms": "building.jpg"),
+		),
+		(
+			"9c4acfee-9597-455e-b983-b60143fdaa90",
+			"Triton — Quy Nhơn Sky Residence",
+			"ChIJ7QjTJQBtbzERetFnxYHlsUM", // Triton Sky Residence, 72B Tây Sơn
+			Some(72_000.0),                // provisional: pricing still firming up (launched 2025)
+			PropertyState::Purchasing,
+			ConstructionStatus::UnderConstruction,
+			0.0,
+			"Arita",
+			"https://tritonquynhonsky.vn/",
+			"Under construction (launched 2025); pricing still being released. Not yet handed over.",
+			"48-storey premium tower (4 basements) at 72B Tây Sơn, Quy Nhơn Nam. Tallest of the set; early-stage entry on a central arterial. Specs and pricing still firming up — treat valuation as provisional.",
+			pics!("triton": "building.jpg", "location.jpg", "floorplan.jpg"),
+		),
 	];
 
 	// Developers first: the FK on properties.developer requires them to exist.
@@ -310,28 +290,33 @@ pub async fn seed(store: &SqliteStore) -> Result<(), DomainError> {
 			.map_err(map_sqlx_error)?;
 	}
 
-	for s in seeds {
-		let id = crate::domain::parse_building_id(s.id)?;
-		let price = s.price.map(|p| Money::parse(p).expect("seed price is non-negative finite"));
+	for (id, name, place, price, state, construction, target_appreciation, developer, research_url, terms, reasoning, pics) in seeds {
+		let id = crate::domain::parse_building_id(id)?;
+		let price = price.map(|p| Money::parse(p).expect("seed price is non-negative finite"));
 		store
 			.put(&Building {
 				id,
-				name: s.name.into(),
-				place: GooglePlace::parse(s.place.into())?,
-				construction: s.construction,
-				target_appreciation: s.target_appreciation,
-				developer: Some(s.developer.into()),
-				research_url: ResearchUrl::parse(s.research_url.into())?,
-				terms: Some(s.terms.into()),
+				name: name.into(),
+				place: GooglePlace::parse(place.into())?,
+				construction,
+				target_appreciation,
+				developer: Some(developer.into()),
+				research_url: ResearchUrl::parse(research_url.into())?,
+				terms: Some(terms.into()),
 				deal: None,
 				loan: None,
-				additional_reasoning: Some(s.reasoning.into()),
-				apartments: mock_apartments(id, s.state, price),
+				additional_reasoning: Some(reasoning.into()),
+				apartments: mock_apartments(id, state, price),
 				coords: None,
 			})
 			.await?;
 
-		for (filename, content_type, bytes) in s.pics {
+		for (filename, bytes) in pics {
+			let content_type = match filename.rsplit_once('.').expect("seed pics are named with their extension").1 {
+				"jpg" => "image/jpeg",
+				"png" => "image/png",
+				ext => panic!("seed pic of unhandled type .{ext}"),
+			};
 			store
 				.add_file(
 					PropertyFile {
@@ -340,7 +325,7 @@ pub async fn seed(store: &SqliteStore) -> Result<(), DomainError> {
 						apt: None,
 						kind: FileKind::Pic,
 						filename: (*filename).into(),
-						content_type: (*content_type).into(),
+						content_type: content_type.into(),
 					},
 					bytes,
 				)
