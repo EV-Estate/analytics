@@ -25,17 +25,17 @@
         # Darwin-only: the var doesn't exist on Linux's loader.
         dyldFallback = pkgs.lib.optionalString pkgs.stdenv.isDarwin
           ''export DYLD_FALLBACK_LIBRARY_PATH="${rust}/lib''${DYLD_FALLBACK_LIBRARY_PATH:+:$DYLD_FALLBACK_LIBRARY_PATH}"'';
-        # v_flakes ships the treefmt hook; we extend it with the same `.#test`
-        # derivation (cargo test / insta snapshots). Kept on pre-push, not
-        # pre-commit — a full test run per commit is too slow; flip `stages` to
-        # ["pre-commit"] if you want it on every commit.
+        # v_flakes ships the treefmt hook; we extend it with the error particles
+        # (`nix run .#test`). Kept on pre-push, not pre-commit — a full test run
+        # per commit is too slow; flip `stages` to ["pre-commit"] if you want it
+        # on every commit.
         preCommitBase = v_flakes.files.preCommit { inherit pkgs; };
         pre-commit-check = pre-commit-hooks.lib.${system}.run (preCommitBase // {
           hooks = preCommitBase.hooks // {
             test = {
               enable = true;
-              name = "nix run .#test (cargo test / insta snapshots)";
-              entry = "${runTest}/bin/run-test";
+              name = "nix run .#test -- --severity errors";
+              entry = "${pkgs.lib.getExe github.test} --severity errors";
               pass_filenames = false;
               stages = [ "pre-push" ];
             };
@@ -176,20 +176,6 @@
             '';
           };
 
-        # ── test suite: cargo test (runs the insta snapshots) ──────────────
-        # Delegates to `nix develop` so cargo gets the devShell toolchain (the
-        # `.cargo` sccache/cranelift/mold accelerators a bare app PATH lacks),
-        # exactly like runDev does.
-        runTest = pkgs.writeShellApplication {
-          name = "run-test";
-          runtimeInputs = with pkgs; [ git ];
-          text = ''
-            repo="$(git rev-parse --show-toplevel)"
-            echo "▶ cargo test (insta snapshots)"
-            exec nix develop "$repo" --command cargo test
-          '';
-        };
-
       in
       let
         rustc = build_rust;
@@ -293,12 +279,11 @@
       in
       {
         # `nix run .#dev`         → MFE bundles (debug) + server, on port
-        # `nix run .#test`        → cargo test (insta snapshots)
+        # `nix run .#test`        → every check (v_flakes particles); `-- --help` lists them
         # `nix run .#pull-prod-db`→ replace the local dev DB with prod's (litestream R2 restore)
         apps = {
           dev = { type = "app"; program = "${runDev}/bin/run-dev"; };
           default = { type = "app"; program = "${runDev}/bin/run-dev"; };
-          test = { type = "app"; program = "${runTest}/bin/run-test"; };
           pull-prod-db = { type = "app"; program = "${runPullProdDb}/bin/pull-prod-db"; };
         };
 

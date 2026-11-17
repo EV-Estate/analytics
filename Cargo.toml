@@ -7,6 +7,7 @@ resolver = "3"
 
 [workspace.package]
 version = "0.4.2"
+repository = "https://github.com/EV-Estate/analytics"
 
 [workspace.lints.clippy]
 float_cmp = "allow"
@@ -17,8 +18,11 @@ doc_lazy_continuation = "allow"
 get_first = "allow"
 get_last_with_len = "allow"
 manual_is_multiple_of = "allow"
+if_not_else = "warn"
+integer_division = "warn"
 
 [workspace.lints.rust]
+stable_features = "allow"
 unused_features = "allow"
 
 [workspace.lints.cargo]
