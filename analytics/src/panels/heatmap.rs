@@ -166,7 +166,7 @@ fn Treemap(buildings: Vec<Building>, states: Vec<PropertyStateKind>) -> Element 
 									appt.set(None);
 								},
 								div { class: "flex min-w-0 flex-col gap-0.5",
-									span { class: "truncate text-sm font-semibold text-white", "{name}" }
+									span { class: "truncate text-sm font-semibold text-white", {name.clone()} }
 									span { class: "text-xs text-white/80", "{change:+.1}%" }
 								}
 							}
@@ -205,7 +205,7 @@ fn BuildingCell(tile: BTile) -> Element {
 			key: "{id}",
 			class: "absolute z-20 overflow-hidden rounded-md ring-2 ring-main-accent-t3",
 			style: "left:calc({r.x:.4}% + 2px);top:calc({r.y:.4}% + 2px);width:calc({r.w:.4}% - 4px);height:calc({r.h:.4}% - 4px);background-color:{heat_color(change)}",
-			span { class: "pointer-events-none absolute left-1 top-1 z-30 rounded bg-main-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-main-accent-t3", "{name}" }
+			span { class: "pointer-events-none absolute left-1 top-1 z-30 rounded bg-main-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-main-accent-t3", {name.clone()} }
 			for (a, ar) in apartments.into_iter().zip(inner) {
 				{
 					let n = a.number;
@@ -478,7 +478,8 @@ mod tests {
 
 		let html = render(included, states);
 		assert!(!html.contains("Interesting"), "interesting building must not tile");
-		assert!(html.contains("Purchased") && html.contains("Purchasing"), "holdings must tile");
+		assert!(html.contains("Purchased"), "holdings must tile");
+		assert!(html.contains("Purchasing"), "holdings must tile");
 	}
 
 	#[test]
@@ -494,9 +495,12 @@ mod tests {
 
 		let total: f64 = values.iter().sum();
 		for (v, r) in values.iter().zip(&rects) {
-			assert!(r.w >= 0.0 && r.h >= 0.0, "negative tile");
-			assert!(r.x >= -1e-6 && r.y >= -1e-6, "tile escapes top-left");
-			assert!(r.x + r.w <= bounds.w + 1e-3 && r.y + r.h <= bounds.h + 1e-3, "tile escapes bounds");
+			assert!(r.w >= 0.0, "negative tile");
+			assert!(r.h >= 0.0, "negative tile");
+			assert!(r.x >= -1e-6, "tile escapes top-left");
+			assert!(r.y >= -1e-6, "tile escapes top-left");
+			assert!(r.x + r.w <= bounds.w + 1e-3, "tile escapes bounds");
+			assert!(r.y + r.h <= bounds.h + 1e-3, "tile escapes bounds");
 			// Area is proportional to value.
 			let want = v / total * bounds.w * bounds.h;
 			assert!((r.w * r.h - want).abs() < 1e-3, "area {} not ∝ value, want {want}", r.w * r.h);
